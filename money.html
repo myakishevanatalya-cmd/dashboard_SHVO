@@ -190,6 +190,67 @@
       gap: 14px;
     }
 
+    .cash-mobile-owner-summary {
+      display: none;
+    }
+
+    .cash-mobile-owner-summary__grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .cash-mobile-owner-card {
+      padding: 13px 14px;
+      border: 1px solid rgba(125, 157, 202, 0.24);
+      border-radius: 16px;
+      background: rgba(19, 32, 56, 0.72);
+    }
+
+    .cash-mobile-owner-card--accent {
+      border-color: rgba(101, 223, 255, 0.44);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(39, 211, 255, 0.15), transparent 36%),
+        rgba(19, 32, 56, 0.82);
+    }
+
+    .cash-mobile-owner-card--red {
+      border-color: rgba(251, 113, 133, 0.52);
+      background: rgba(72, 24, 38, 0.24);
+    }
+
+    .cash-mobile-owner-card--yellow {
+      border-color: rgba(251, 191, 36, 0.5);
+      background: rgba(60, 45, 16, 0.22);
+    }
+
+    .cash-mobile-owner-card--green {
+      border-color: rgba(45, 212, 191, 0.42);
+    }
+
+    .cash-mobile-owner-card__label {
+      margin: 0 0 5px;
+      color: var(--cash-muted);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .cash-mobile-owner-card__value {
+      margin: 0;
+      color: #ffffff;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .cash-mobile-owner-card__text {
+      margin: 7px 0 0;
+      color: var(--cash-text-soft);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
     .cash-kpi {
       min-height: 126px;
       padding: 17px;
@@ -1671,6 +1732,18 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
+      .cash-mobile-owner-summary {
+        display: block;
+      }
+
+      .cash-mobile-owner-summary__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .cash-matrix-panel {
+        display: none;
+      }
+
       .cash-hero {
         gap: 12px;
       }
@@ -1753,6 +1826,10 @@
 
       .cash-filters,
       .cash-kpis {
+        grid-template-columns: 1fr;
+      }
+
+      .cash-mobile-owner-summary__grid {
         grid-template-columns: 1fr;
       }
 
@@ -1987,6 +2064,16 @@
     </article>
   </div>
 
+  <article class="cash-panel cash-mobile-owner-summary">
+    <div class="cash-panel__head">
+      <div>
+        <h4 class="cash-panel__title">Мобильная сводка собственника</h4>
+        <p class="cash-panel__hint">Короткий экран для телефона: деньги, риск, запас и главный фокус.</p>
+      </div>
+    </div>
+    <div class="cash-mobile-owner-summary__grid" id="cash-mobile-owner-summary"></div>
+  </article>
+
   <div class="cash-warning cash-warning--amber" id="cash-unclear-warning">
     <p class="cash-warning__title">⚠ Требуется разбор статьи «Выяснить»</p>
     <p class="cash-warning__text" id="cash-unclear-warning-text"></p>
@@ -2137,7 +2224,7 @@
     </div>
   </article>
 
-  <article class="cash-panel">
+  <article class="cash-panel cash-matrix-panel">
     <div class="cash-panel__head">
       <div>
         <h4 class="cash-panel__title">Интерактивная матрица ОДДС</h4>
@@ -2674,6 +2761,7 @@
       const balances = cashBuildClientBalances(facts, months);
 
       cashRenderKpis(facts, balances);
+      cashRenderMobileOwnerSummary(facts, balances);
       cashRenderCfoChart(facts);
       cashRenderDirectionChart(facts);
       cashRenderMonthlyLine(facts, months);
@@ -2768,6 +2856,116 @@
       cashApplyKpiSignal('cash-kpi-buffer-card', 'cash-kpi-buffer-status', buffer.signal);
       cashApplyKpiSignal('cash-kpi-advance-ratio', 'cash-kpi-advance-status', cashGetAdvanceSignal(advanceRatio.value, buffer.days));
       cashApplyKpiSignal('cash-kpi-direction-margin', 'cash-kpi-margin-status', cashGetMarginSignal(directionMargin.value));
+    }
+
+    function cashRenderMobileOwnerSummary(facts, balances) {
+      const target = document.getElementById('cash-mobile-owner-summary');
+
+      if (!target) return;
+
+      if (!facts.length || !balances.length) {
+        target.innerHTML = '<div class="cash-empty">Нет данных для мобильной сводки.</div>';
+        return;
+      }
+
+      const ncf = cashRound(facts.reduce(function cashSumMobileNcf(sum, fact) {
+        return sum + Number(fact.cashFlowValue || 0);
+      }, 0));
+      const currentBalance = balances[balances.length - 1];
+      const buffer = cashCalculateBuffer(facts, balances);
+      const productLeader = cashGetMobileProductLeader(facts);
+      const mainSignal = cashGetMobileMainSignal(ncf, buffer, currentBalance);
+      const cards = [
+        {
+          label: 'Остаток на конец',
+          value: cashFormatCurrency(currentBalance.closingBalance || 0),
+          text: currentBalance.label || 'Актуальный месяц',
+          level: 'accent',
+        },
+        {
+          label: 'Общий ЧДП',
+          value: cashFormatCurrency(ncf),
+          text: ncf >= 0 ? 'Денежный поток периода положительный.' : 'Период потребляет деньги.',
+          level: ncf >= 0 ? 'green' : 'red',
+        },
+        {
+          label: 'Cash Buffer',
+          value: buffer.days ? cashFormatNumber(buffer.days) + ' дн.' : '—',
+          text: buffer.signal ? buffer.signal.label : 'Нет данных',
+          level: buffer.signal ? buffer.signal.level : 'yellow',
+        },
+        {
+          label: 'Лидер поступлений',
+          value: productLeader ? productLeader.label : '—',
+          text: productLeader ? cashFormatCurrency(productLeader.value) + ' · ' + cashFormatPercent(productLeader.share) : 'Нет продуктовых поступлений.',
+          level: 'accent',
+        },
+        {
+          label: 'Главный фокус',
+          value: mainSignal.value,
+          text: mainSignal.text,
+          level: mainSignal.level,
+        },
+      ];
+
+      target.innerHTML = cards.map(function cashRenderMobileOwnerCard(card) {
+        return '<article class="cash-mobile-owner-card cash-mobile-owner-card--' + cashEscape(card.level) + '">'
+          + '<p class="cash-mobile-owner-card__label">' + cashEscape(card.label) + '</p>'
+          + '<p class="cash-mobile-owner-card__value">' + cashEscape(card.value) + '</p>'
+          + '<p class="cash-mobile-owner-card__text">' + cashEscape(card.text) + '</p>'
+          + '</article>';
+      }).join('');
+    }
+
+    function cashGetMobileProductLeader(facts) {
+      const productFacts = facts.filter(function cashFilterMobileProductFact(fact) {
+        return cashIsIncome(fact) && Math.abs(cashGetCashReceiptNetValue(fact)) >= 0.01;
+      });
+      const total = productFacts.reduce(function cashSumMobileProductTotal(sum, fact) {
+        return sum + cashGetCashReceiptNetValue(fact);
+      }, 0);
+      const grouped = cashToSortedEntries(cashGroupSum(productFacts, 'article', 'cashReceiptNetValue'));
+      const leader = grouped[0] || null;
+
+      if (!leader || !total) return null;
+
+      return {
+        label: leader.label,
+        value: leader.value,
+        share: leader.value / total * 100,
+      };
+    }
+
+    function cashGetMobileMainSignal(ncf, buffer, currentBalance) {
+      if (buffer.signal && buffer.signal.level === 'red') {
+        return {
+          value: 'Ликвидность',
+          text: 'Сначала проверить платежный календарь и обязательные выплаты.',
+          level: 'red',
+        };
+      }
+
+      if (ncf < 0) {
+        return {
+          value: 'Минус периода',
+          text: 'Разобрать крупнейшие выплаты и направления с отрицательным ЧДП.',
+          level: 'red',
+        };
+      }
+
+      if (currentBalance && Number(currentBalance.closingBalance || 0) < Number(currentBalance.expenseBenchmark || 0)) {
+        return {
+          value: 'Остаток близко к ФОТ',
+          text: 'Проверить запас на зарплаты и постоянные расходы.',
+          level: 'yellow',
+        };
+      }
+
+      return {
+        value: 'Контроль',
+        text: 'Критичных денежных рисков по текущему срезу не видно.',
+        level: 'green',
+      };
     }
 
     function cashCalculateAdvanceRatio(facts) {
@@ -4208,6 +4406,7 @@
         'cash-monthly-line',
         'cash-expense-legend',
         'cash-balance-chart',
+        'cash-mobile-owner-summary',
         'cash-money-diagnostics',
         'cash-money-diagnostic-list',
         'cash-validation',
