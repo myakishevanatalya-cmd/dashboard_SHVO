@@ -397,6 +397,25 @@
       white-space: nowrap;
     }
 
+    .cash-balance__value-stack {
+      display: grid;
+      gap: 3px;
+      color: #d7e4f5;
+      font-size: 11px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .cash-balance__value-stack strong {
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .cash-balance__value-stack span {
+      color: var(--cash-muted);
+    }
+
     .cash-bar--with-suffix {
       grid-template-columns: minmax(120px, 180px) minmax(0, 1fr) 172px;
     }
@@ -1769,6 +1788,10 @@
         text-align: left;
       }
 
+      .cash-balance__value-stack {
+        text-align: left;
+      }
+
       .cash-line {
         height: 220px;
         max-height: 220px;
@@ -2846,9 +2869,10 @@
     }
 
     function cashRenderCfoChart(facts) {
-      const metric = cashState.mode === 'inflow' ? 'inflow' : 'outflow';
+      const isReceiptMode = cashState.mode === 'inflow';
+      const metric = isReceiptMode ? 'cashReceiptNetValue' : 'cashPaymentNetValue';
       const source = facts.filter(function cashFilterMode(fact) {
-        return metric === 'inflow' ? cashIsIncome(fact) : cashIsExpense(fact);
+        return isReceiptMode ? cashIsIncome(fact) : cashIsExpense(fact);
       });
       const grouped = cashBuildCfoChartEntries(source, facts, metric);
 
@@ -2987,7 +3011,7 @@
     function cashBuildCfoTooltip(cfo, value, educationExpenseBase, metric) {
       const baseText = cfo + ': ' + cashFormatCurrency(value);
 
-      if (metric !== 'outflow' || !cashIsAdministrativeCfo(cfo)) {
+      if (metric !== 'cashPaymentNetValue' || !cashIsAdministrativeCfo(cfo)) {
         return baseText;
       }
 
@@ -3076,7 +3100,7 @@
 
     function cashRenderProductLines(facts) {
       const revenueFacts = facts.filter(function cashFilterProductRevenue(fact) {
-        return cashIsIncome(fact) && Number(fact.inflow || 0) > 0;
+        return cashIsIncome(fact) && Math.abs(cashGetCashReceiptNetValue(fact)) >= 0.01;
       });
       const mode = cashState.productMode || 'line';
       cashRefreshProductLineSelect(revenueFacts);
@@ -3086,7 +3110,7 @@
         })
         : revenueFacts;
       const total = preparedFacts.reduce(function cashSumProductRevenue(sum, fact) {
-        return sum + Number(fact.inflow || 0);
+        return sum + cashGetCashReceiptNetValue(fact);
       }, 0);
       const grouped = cashBuildProductGroups(preparedFacts, mode).slice(0, 12);
       const top3 = grouped.slice(0, 3).reduce(function cashSumProductTop3(sum, item) {
@@ -3094,7 +3118,7 @@
       }, 0);
       const leader = grouped[0] || null;
 
-      document.getElementById('cash-product-total').textContent = total ? cashFormatCurrency(total) : '—';
+      document.getElementById('cash-product-total').textContent = Math.abs(total) >= 0.01 ? cashFormatCurrency(total) : '—';
       document.getElementById('cash-product-leader').textContent = leader ? leader.label : '—';
       document.getElementById('cash-product-top3').textContent = total ? cashFormatPercent(top3 / total * 100) : '—';
 
@@ -3135,6 +3159,7 @@
 
       facts.forEach(function cashGroupProductFact(fact) {
         const key = cashGetProductGroupKey(fact, mode);
+        const value = cashGetCashReceiptNetValue(fact);
 
         if (!registry[key]) {
           registry[key] = {
@@ -3146,10 +3171,10 @@
           };
         }
 
-        registry[key].value += Number(fact.inflow || 0);
+        registry[key].value += value;
         registry[key].count += 1;
-        registry[key].directions[fact.direction] = (registry[key].directions[fact.direction] || 0) + Number(fact.inflow || 0);
-        registry[key].cfo[fact.cfo] = (registry[key].cfo[fact.cfo] || 0) + Number(fact.inflow || 0);
+        registry[key].directions[fact.direction] = (registry[key].directions[fact.direction] || 0) + value;
+        registry[key].cfo[fact.cfo] = (registry[key].cfo[fact.cfo] || 0) + value;
       });
 
       return Object.keys(registry).map(function cashMapProductGroup(key) {
@@ -3171,7 +3196,9 @@
 
     function cashRenderProductChart(grouped, total) {
       const target = document.getElementById('cash-product-chart');
-      const maxValue = grouped.length ? grouped[0].value : 0;
+      const maxValue = grouped.length
+        ? Math.max.apply(null, grouped.map(function cashMapProductMaxAbs(item) { return Math.abs(item.value); }))
+        : 0;
 
       if (!grouped.length || !total) {
         target.innerHTML = '<div class="cash-empty">Нет денежных поступлений для продуктового анализа в выбранном срезе.</div>';
@@ -3179,7 +3206,7 @@
       }
 
       target.innerHTML = grouped.map(function cashMapProductRow(item, index) {
-        const width = maxValue ? Math.max(item.value / maxValue * 100, 4) : 0;
+        const width = maxValue ? Math.max(Math.abs(item.value) / maxValue * 100, 4) : 0;
         const percent = total ? item.value / total * 100 : 0;
 
         return '<div class="cash-product-row ' + (index === 0 ? 'cash-product-row--leader' : '') + '">'
@@ -3258,7 +3285,7 @@
       }
 
       const maxValue = Math.max.apply(null, balances.map(function cashMapMax(item) {
-        return Math.max(item.openingBalance, item.expenseBenchmark);
+        return Math.max(item.openingBalance, item.closingBalance, item.expenseBenchmark);
       })) || 1;
 
       target.innerHTML = balances.map(function cashMapBalanceRow(item) {
@@ -3272,7 +3299,10 @@
           + '<span class="cash-balance__inside">' + cashEscape(cashFormatCompactCurrency(item.openingBalance)) + '</span>'
           + '<span class="cash-balance__benchmark" style="left:' + benchmark + '%"></span>'
           + '</span>'
-          + '<span class="cash-bar__value">' + cashFormatCurrency(item.openingBalance) + '</span>'
+          + '<span class="cash-balance__value-stack">'
+          + '<span>начало: ' + cashFormatCurrency(item.openingBalance) + '</span>'
+          + '<strong>конец: ' + cashFormatCurrency(item.closingBalance) + '</strong>'
+          + '</span>'
           + '</div>';
       }).join('');
 
@@ -3925,12 +3955,12 @@
 
     function cashBuildConcentrationDiagnostic(facts) {
       const inflowFacts = facts.filter(function cashFilterConcentrationInflow(fact) {
-        return cashIsIncome(fact) && Number(fact.inflow || 0) > 0;
+        return cashIsIncome(fact) && Math.abs(cashGetCashReceiptNetValue(fact)) >= 0.01;
       });
       const total = inflowFacts.reduce(function cashSumConcentrationTotal(sum, fact) {
-        return sum + Number(fact.inflow || 0);
+        return sum + cashGetCashReceiptNetValue(fact);
       }, 0);
-      const products = cashToSortedEntries(cashGroupSum(inflowFacts, 'article', 'inflow'));
+      const products = cashToSortedEntries(cashGroupSum(inflowFacts, 'article', 'cashReceiptNetValue'));
       const leader = products[0] || null;
       const top3 = products.slice(0, 3).reduce(function cashSumConcentrationTop3(sum, item) {
         return sum + Number(item.value || 0);
@@ -4192,7 +4222,23 @@
         return cashGetFactArticleParent(fact);
       }
 
+      if (key === 'cashReceiptNetValue') {
+        return cashGetCashReceiptNetValue(fact);
+      }
+
+      if (key === 'cashPaymentNetValue') {
+        return cashGetCashPaymentNetValue(fact);
+      }
+
       return fact[key];
+    }
+
+    function cashGetCashReceiptNetValue(fact) {
+      return cashIsIncome(fact) ? Number(fact.cashFlowValue || fact.inflow || 0) : 0;
+    }
+
+    function cashGetCashPaymentNetValue(fact) {
+      return cashIsExpense(fact) ? Number(fact.outflow || 0) : 0;
     }
 
     function cashIsAdministrativeCfo(cfo) {
