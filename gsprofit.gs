@@ -214,8 +214,9 @@ function profitFilterFacts(facts, filters) {
   const toTime = toDate ? new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate(), 23, 59, 59).getTime() : null;
 
   return facts.filter(function profitFilterFact(fact) {
-    if (fromTime !== null && fact.timestamp && fact.timestamp < fromTime) return false;
-    if (toTime !== null && fact.timestamp && fact.timestamp > toTime) return false;
+    if ((fromTime !== null || toTime !== null) && !fact.timestamp) return false;
+    if (fromTime !== null && fact.timestamp < fromTime) return false;
+    if (toTime !== null && fact.timestamp > toTime) return false;
     if (filters.schoolYear && fact.schoolYear !== filters.schoolYear) return false;
     if (filters.direction && fact.direction !== filters.direction) return false;
     if (filters.cfo && fact.cfo !== filters.cfo) return false;

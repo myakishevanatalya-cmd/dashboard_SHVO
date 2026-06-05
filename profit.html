@@ -95,6 +95,7 @@
 
     .profit-status__value { margin: 8px 0 6px; color: var(--profit-cyan); font-size: 22px; font-weight: 950; }
     .profit-status__note { margin: 0; color: var(--profit-muted); font-size: 12px; font-weight: 800; }
+    .profit-status__date { margin: 10px 0 0; color: #dbeaff; font-size: 12px; font-weight: 900; }
 
     .profit-button {
       border: 1px solid var(--profit-line);
@@ -163,8 +164,34 @@
     .profit-kpi__value--accent { color: var(--profit-cyan); }
     .profit-kpi__value--gold { color: var(--profit-gold); }
     .profit-kpi__note { margin: 0; min-height: 30px; color: var(--profit-muted); font-size: 12px; line-height: 1.35; }
+    .profit-kpi__signal {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin: 0 0 8px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      color: #dbeaff;
+      background: rgba(139, 184, 226, .12);
+      font-size: 11px;
+      font-weight: 950;
+    }
+    .profit-kpi__signal::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--profit-muted);
+    }
+    .profit-kpi__signal--green { color: #c9f8da; background: rgba(131, 228, 173, .14); }
+    .profit-kpi__signal--green::before { background: var(--profit-green); }
+    .profit-kpi__signal--yellow { color: #fff0bd; background: rgba(243, 207, 116, .15); }
+    .profit-kpi__signal--yellow::before { background: var(--profit-gold); }
+    .profit-kpi__signal--red { color: #ffd7dc; background: rgba(255, 180, 189, .15); }
+    .profit-kpi__signal--red::before { background: var(--profit-red); }
 
     .profit-grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr); gap: 18px; }
+    .profit-grid--three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .profit-panel { min-width: 0; padding: 18px; border-radius: 22px; }
     .profit-panel__head { display: flex; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
     .profit-panel__title { margin: 0; font-size: 18px; font-weight: 950; letter-spacing: -.02em; }
@@ -182,6 +209,63 @@
     .profit-bar__fill--green { background: linear-gradient(90deg, #6be6a8, #99f0c3); }
     .profit-bar__fill--red { background: linear-gradient(90deg, #ffb4bd, #ff7f92); }
     .profit-bar__value { color: #dbeaff; font-size: 13px; font-weight: 950; text-align: right; white-space: nowrap; }
+
+    .profit-insight {
+      min-height: 100%;
+      border-left: 3px solid var(--profit-cyan);
+    }
+    .profit-insight--risk { border-left-color: var(--profit-red); }
+    .profit-insight--focus { border-left-color: var(--profit-gold); }
+    .profit-insight__list {
+      display: grid;
+      gap: 10px;
+      margin: 12px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .profit-insight__list li {
+      padding: 10px 12px;
+      border: 1px solid var(--profit-line);
+      border-radius: 13px;
+      color: #dbeaff;
+      background: rgba(32, 50, 80, .56);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .profit-product-toolbar {
+      display: grid;
+      grid-template-columns: minmax(220px, 360px) 1fr;
+      gap: 14px;
+      align-items: end;
+      margin-bottom: 14px;
+    }
+    .profit-product-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .profit-product-card {
+      padding: 12px;
+      border: 1px solid var(--profit-line);
+      border-radius: 14px;
+      background: rgba(32, 50, 80, .56);
+    }
+    .profit-product-card__label {
+      margin: 0 0 6px;
+      color: var(--profit-muted);
+      font-size: 10px;
+      font-weight: 950;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .profit-product-card__value {
+      margin: 0;
+      color: var(--profit-cyan);
+      font-size: 19px;
+      font-weight: 950;
+    }
 
     .profit-combo { min-height: 360px; overflow-x: auto; padding: 14px 10px 4px; }
     .profit-combo__plot { position: relative; display: grid; grid-template-columns: repeat(var(--profit-cols, 1), minmax(72px, 1fr)); align-items: end; gap: 14px; min-width: 720px; height: 300px; border-bottom: 1px solid rgba(139,184,226,.28); background: repeating-linear-gradient(to top, transparent, transparent 74px, rgba(139,184,226,.12) 75px); }
@@ -269,12 +353,14 @@
         <div class="profit-actions">
           <button class="profit-button profit-button--primary" id="profit-refresh" type="button">Обновить</button>
           <button class="profit-button" id="profit-reset" type="button">Сбросить</button>
+          <button class="profit-button" id="profit-help-open" type="button">❓ Как читать P&amp;L</button>
         </div>
       </div>
       <aside class="profit-status">
         <p class="profit-status__label">статус</p>
         <p class="profit-status__value" id="profit-status-value">Загрузка</p>
         <p class="profit-status__note" id="profit-status-note">Подключаю лист «Прибыль»</p>
+        <p class="profit-status__date" id="profit-current-date">Дата просмотра: —</p>
       </aside>
     </header>
 
@@ -290,16 +376,22 @@
     </section>
 
     <section class="profit-kpis">
-      <article class="profit-kpi"><p class="profit-kpi__label">выручка</p><p class="profit-kpi__value profit-kpi__value--accent" id="profit-kpi-revenue">—</p><p class="profit-kpi__note">чистое сальдо доходных статей</p></article>
-      <article class="profit-kpi"><p class="profit-kpi__label">валовая прибыль</p><p class="profit-kpi__value" id="profit-kpi-gross">—</p><p class="profit-kpi__note">выручка плюс прямые расходы по знаку</p></article>
-      <article class="profit-kpi"><p class="profit-kpi__label">EBITDA</p><p class="profit-kpi__value profit-kpi__value--gold" id="profit-kpi-ebitda">—</p><p class="profit-kpi__note">операционная прибыль до налогов</p></article>
-      <article class="profit-kpi"><p class="profit-kpi__label">рентабельность EBITDA</p><p class="profit-kpi__value" id="profit-kpi-ebitda-margin">—</p><p class="profit-kpi__note">EBITDA / выручка</p></article>
-      <article class="profit-kpi"><p class="profit-kpi__label">чистая прибыль до инвестиций</p><p class="profit-kpi__value" id="profit-kpi-net-before-invest">—</p><p class="profit-kpi__note">с учетом налогов и внеоперационки</p></article>
-      <article class="profit-kpi"><p class="profit-kpi__label">рентабельность чистой прибыли</p><p class="profit-kpi__value" id="profit-kpi-net-margin">—</p><p class="profit-kpi__note">чистая прибыль / выручка</p></article>
-      <article class="profit-kpi"><p class="profit-kpi__label">чистая прибыль итоговая</p><p class="profit-kpi__value profit-kpi__value--gold" id="profit-kpi-net-final">—</p><p class="profit-kpi__note">с учетом строительства ЗВД</p></article>
+      <article class="profit-kpi"><p class="profit-kpi__label">выручка</p><p class="profit-kpi__value profit-kpi__value--accent" id="profit-kpi-revenue">—</p><p class="profit-kpi__signal" id="profit-signal-revenue">нет данных</p><p class="profit-kpi__note">чистое сальдо доходных статей</p></article>
+      <article class="profit-kpi"><p class="profit-kpi__label">валовая прибыль</p><p class="profit-kpi__value" id="profit-kpi-gross">—</p><p class="profit-kpi__signal" id="profit-signal-gross">нет данных</p><p class="profit-kpi__note">выручка плюс прямые расходы по знаку</p></article>
+      <article class="profit-kpi"><p class="profit-kpi__label">EBITDA</p><p class="profit-kpi__value profit-kpi__value--gold" id="profit-kpi-ebitda">—</p><p class="profit-kpi__signal" id="profit-signal-ebitda">нет данных</p><p class="profit-kpi__note">операционная прибыль до налогов</p></article>
+      <article class="profit-kpi"><p class="profit-kpi__label">рентабельность EBITDA</p><p class="profit-kpi__value" id="profit-kpi-ebitda-margin">—</p><p class="profit-kpi__signal" id="profit-signal-ebitda-margin">нет данных</p><p class="profit-kpi__note">EBITDA / выручка</p></article>
+      <article class="profit-kpi"><p class="profit-kpi__label">чистая прибыль до инвестиций</p><p class="profit-kpi__value" id="profit-kpi-net-before-invest">—</p><p class="profit-kpi__signal" id="profit-signal-net-before-invest">нет данных</p><p class="profit-kpi__note">с учетом налогов и внеоперационки</p></article>
+      <article class="profit-kpi"><p class="profit-kpi__label">рентабельность чистой прибыли</p><p class="profit-kpi__value" id="profit-kpi-net-margin">—</p><p class="profit-kpi__signal" id="profit-signal-net-margin">нет данных</p><p class="profit-kpi__note">чистая прибыль / выручка</p></article>
+      <article class="profit-kpi"><p class="profit-kpi__label">чистая прибыль итоговая</p><p class="profit-kpi__value profit-kpi__value--gold" id="profit-kpi-net-final">—</p><p class="profit-kpi__signal" id="profit-signal-net-final">нет данных</p><p class="profit-kpi__note">с учетом строительства ЗВД</p></article>
     </section>
 
     <div class="profit-alert" id="profit-cfo-alert"></div>
+
+    <section class="profit-grid profit-grid--three">
+      <article class="profit-panel profit-insight"><h3 class="profit-panel__title">Что хорошо</h3><p class="profit-panel__hint">Автоматические позитивные сигналы по текущему срезу.</p><ul class="profit-insight__list" id="profit-good-list"></ul></article>
+      <article class="profit-panel profit-insight profit-insight--risk"><h3 class="profit-panel__title">Что требует внимания</h3><p class="profit-panel__hint">Риски прибыльности, структуры затрат и качества аналитики.</p><ul class="profit-insight__list" id="profit-risk-list"></ul></article>
+      <article class="profit-panel profit-insight profit-insight--focus"><h3 class="profit-panel__title">Куда смотреть</h3><p class="profit-panel__hint">Практические управленческие фокусы для директора и собственника.</p><ul class="profit-insight__list" id="profit-focus-list"></ul></article>
+    </section>
 
     <section class="profit-grid">
       <article class="profit-panel">
@@ -312,6 +404,30 @@
         <div class="profit-panel__head"><div><h3 class="profit-panel__title">Рейтинг ЦФО по маржинальному доходу</h3><p class="profit-panel__hint">Маржинальный доход = выручка ЦФО плюс прямые расходы по знаку.</p></div></div>
         <div class="profit-bars" id="profit-cfo-margin-chart"></div>
       </article>
+    </section>
+
+    <section class="profit-panel">
+      <div class="profit-panel__head">
+        <div>
+          <h3 class="profit-panel__title">Продуктовые линейки P&amp;L</h3>
+          <p class="profit-panel__hint">Если выбрано направление и линейка, блок разворачивает прибыль до конкретных продуктов - групп, смен, программ и услуг.</p>
+        </div>
+        <div class="profit-toggle">
+          <button class="profit-toggle__button is-active" id="profit-product-view-line" type="button">Линейки</button>
+          <button class="profit-toggle__button" id="profit-product-view-product" type="button">Продукты</button>
+          <button class="profit-toggle__button" id="profit-product-view-direction" type="button">Направления</button>
+        </div>
+      </div>
+      <div class="profit-product-toolbar">
+        <label class="profit-field" for="profit-product-line-select"><span class="profit-label">продуктовая линейка</span><select class="profit-select" id="profit-product-line-select"></select></label>
+        <p class="profit-panel__hint" id="profit-product-note">Выберите линейку, чтобы увидеть продукты внутри нее.</p>
+      </div>
+      <div class="profit-product-summary">
+        <div class="profit-product-card"><p class="profit-product-card__label">выручка среза</p><p class="profit-product-card__value" id="profit-product-revenue">—</p></div>
+        <div class="profit-product-card"><p class="profit-product-card__label">маржинальный доход</p><p class="profit-product-card__value" id="profit-product-margin">—</p></div>
+        <div class="profit-product-card"><p class="profit-product-card__label">маржинальность</p><p class="profit-product-card__value" id="profit-product-margin-rate">—</p></div>
+      </div>
+      <div class="profit-bars" id="profit-product-chart"></div>
     </section>
 
     <section class="profit-grid">
@@ -352,8 +468,36 @@
     </div>
   </div>
 
+  <div class="profit-modal" id="profit-help-modal">
+    <div class="profit-modal__body">
+      <div class="profit-modal__head">
+        <div>
+          <h3 class="profit-modal__title">📑 P&amp;L ШВО: как читать прибыль</h3>
+          <p class="profit-panel__hint">Короткая управленческая справка для собственника и руководителей.</p>
+        </div>
+        <button class="profit-button" id="profit-help-close" type="button">Закрыть</button>
+      </div>
+      <div class="profit-insight__list">
+        <li><strong>Выручка</strong> - начисленные доходы периода. Это не деньги на счете: авансы и оплаты сверяются отдельно в ОДДС.</li>
+        <li><strong>Валовая прибыль</strong> - показывает, окупают ли продуктовые линейки прямые расходы: ФОТ, материалы, мероприятия и оборудование филиалов.</li>
+        <li><strong>EBITDA</strong> - главный показатель операционной эффективности до налогов, инвестиций и финансовых движений.</li>
+        <li><strong>Рентабельность EBITDA</strong>: выше 30% - сильная зона, 15-30% - рабочая норма, ниже 15% - риск раздувания расходов или просадки спроса.</li>
+        <li><strong>P&amp;L ↔ ОДДС</strong>: P&amp;L отвечает «заработали ли», ОДДС отвечает «есть ли деньги». Если прибыль есть, а денег нет - смотреть дебиторку, авансы, кредиторку и CAPEX.</li>
+        <li><strong>Продуктовые линейки</strong>: выбирайте направление и линейку, чтобы увидеть вклад конкретных групп, смен, программ и услуг.</li>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const profitState = { facts: [], dictionaries: {}, defaults: {}, expenseView: 'category', lastFilters: {} };
+    const profitState = {
+      facts: [],
+      dictionaries: {},
+      defaults: {},
+      expenseView: 'category',
+      productView: 'line',
+      productLine: 'all',
+      lastFilters: {}
+    };
 
     document.addEventListener('DOMContentLoaded', profitInit);
 
@@ -371,8 +515,15 @@
       document.getElementById('profit-expense-view-category').addEventListener('click', function profitViewCategory() { profitSetExpenseView('category'); });
       document.getElementById('profit-expense-view-direction').addEventListener('click', function profitViewDirection() { profitSetExpenseView('direction'); });
       document.getElementById('profit-expense-view-article').addEventListener('click', function profitViewArticle() { profitSetExpenseView('article'); });
+      document.getElementById('profit-product-view-line').addEventListener('click', function profitProductLineView() { profitSetProductView('line'); });
+      document.getElementById('profit-product-view-product').addEventListener('click', function profitProductProductView() { profitSetProductView('product'); });
+      document.getElementById('profit-product-view-direction').addEventListener('click', function profitProductDirectionView() { profitSetProductView('direction'); });
+      document.getElementById('profit-product-line-select').addEventListener('change', profitHandleProductLineChange);
+      document.getElementById('profit-help-open').addEventListener('click', profitOpenHelp);
+      document.getElementById('profit-help-close').addEventListener('click', profitCloseHelp);
       document.getElementById('profit-drill-close').addEventListener('click', profitCloseDrillModal);
       document.getElementById('profit-drill-modal').addEventListener('click', function profitClickModal(event) { if (event.target.id === 'profit-drill-modal') profitCloseDrillModal(); });
+      document.getElementById('profit-help-modal').addEventListener('click', function profitClickHelpModal(event) { if (event.target.id === 'profit-help-modal') profitCloseHelp(); });
     }
 
     function profitLoadData(filters) {
@@ -398,6 +549,7 @@
       profitFillFilters();
       profitRenderAll();
       profitSetStatus('Готово', 'Загружено строк: ' + profitFormatNumber(response.data.meta.filteredRows || 0));
+      profitSetText('profit-current-date', 'Дата просмотра: ' + new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date()));
     }
 
     function profitHandleFailure(error) {
@@ -452,6 +604,8 @@
       profitRenderComboChart(profitBuildMonthlyMetrics(profitState.facts));
       profitRenderCfoMarginChart(profitState.facts);
       profitRenderDirectionMarginChart(profitState.facts);
+      profitRenderProductLines(profitState.facts);
+      profitRenderInsights(profitState.facts, metrics);
       profitRenderExpenseStructure(profitState.facts);
       profitRenderMatrix(profitState.facts);
       profitRenderAlerts(profitState.facts);
@@ -479,6 +633,13 @@
       profitSetText('profit-kpi-net-before-invest', profitFormatCurrency(metrics.netBeforeInvest));
       profitSetText('profit-kpi-net-margin', profitFormatPercent(metrics.netMargin));
       profitSetText('profit-kpi-net-final', profitFormatCurrency(metrics.netFinal));
+      profitSetSignal('profit-signal-revenue', metrics.revenue > 0 ? 'green' : 'red', metrics.revenue > 0 ? 'есть база' : 'нет выручки');
+      profitSetSignal('profit-signal-gross', metrics.gross > 0 ? 'green' : 'red', metrics.gross > 0 ? 'прямые расходы окупаются' : 'минус на валовой');
+      profitSetSignal('profit-signal-ebitda', metrics.ebitda > 0 ? 'green' : 'red', metrics.ebitda > 0 ? 'операционный плюс' : 'операционный минус');
+      profitSetSignal('profit-signal-ebitda-margin', metrics.ebitdaMargin >= 30 ? 'green' : metrics.ebitdaMargin >= 15 ? 'yellow' : 'red', profitGetMarginStatus(metrics.ebitdaMargin));
+      profitSetSignal('profit-signal-net-before-invest', metrics.netBeforeInvest > 0 ? 'green' : 'red', metrics.netBeforeInvest > 0 ? 'регулярная прибыль' : 'регулярный убыток');
+      profitSetSignal('profit-signal-net-margin', metrics.netMargin >= 20 ? 'green' : metrics.netMargin >= 10 ? 'yellow' : 'red', profitGetNetMarginStatus(metrics.netMargin));
+      profitSetSignal('profit-signal-net-final', metrics.netFinal > 0 ? 'green' : 'red', metrics.netFinal > 0 ? 'после CAPEX плюс' : 'после CAPEX минус');
     }
 
     function profitBuildMonthlyMetrics(facts) {
@@ -540,6 +701,113 @@
       profitRenderBars('profit-direction-margin-chart', items, { maxValue: 100, valueFormatter: function profitDirectionValue(item) { return profitFormatPercent(item.value) + ' · ' + profitFormatCurrency(item.amount); }, empty: 'Нет данных по направлениям.' });
     }
 
+    function profitSetProductView(view) {
+      profitState.productView = view;
+      ['line', 'product', 'direction'].forEach(function profitToggleProductView(item) {
+        document.getElementById('profit-product-view-' + item).classList.toggle('is-active', item === view);
+      });
+      profitRenderProductLines(profitState.facts);
+    }
+
+    function profitHandleProductLineChange() {
+      profitState.productLine = document.getElementById('profit-product-line-select').value || 'all';
+      if (profitState.productView !== 'direction') {
+        profitState.productView = profitState.productLine === 'all' ? 'line' : 'product';
+      }
+      ['line', 'product', 'direction'].forEach(function profitToggleProductViewAfterSelect(item) {
+        document.getElementById('profit-product-view-' + item).classList.toggle('is-active', item === profitState.productView);
+      });
+      profitRenderProductLines(profitState.facts);
+    }
+
+    function profitRenderProductLines(facts) {
+      const revenueFacts = facts.filter(function profitProductRevenueFact(fact) {
+        return fact.managementType === 'revenue' && Math.abs(Number(fact.amount || 0)) >= 0.01;
+      });
+      const directFacts = facts.filter(function profitProductDirectFact(fact) {
+        return fact.managementType === 'directExpense';
+      });
+
+      profitRefreshProductLineSelect(revenueFacts);
+
+      const selectedLine = profitState.productLine || 'all';
+      const view = profitState.productView || 'line';
+      const scopedFacts = selectedLine === 'all'
+        ? facts
+        : facts.filter(function profitFilterProductLineScope(fact) { return fact.articleParent === selectedLine; });
+      const grouped = profitBuildProductGroups(scopedFacts, view).slice(0, 12);
+      const metrics = profitCalculateProductMetrics(scopedFacts);
+      const note = selectedLine === 'all'
+        ? 'Показаны все продуктовые линейки. Выберите линейку, чтобы раскрыть ее до продуктов. Прямые расходы без продуктовой аллокации остаются в общих статьях P&L.'
+        : 'Линейка «' + selectedLine + '» раскрыта в режиме «' + profitGetProductViewLabel(view) + '». Глобальный фильтр направления дополнительно сужает срез; прямые расходы учитываются только если они привязаны к этой линейке.';
+
+      profitSetText('profit-product-note', note);
+      profitSetText('profit-product-revenue', profitFormatCurrency(metrics.revenue));
+      profitSetText('profit-product-margin', profitFormatCurrency(metrics.margin));
+      profitSetText('profit-product-margin-rate', profitFormatPercent(metrics.marginRate));
+      profitRenderBars('profit-product-chart', grouped, {
+        valueFormatter: function profitProductValue(item) {
+          return profitFormatCurrency(item.value) + ' · ' + profitFormatPercent(item.marginRate);
+        },
+        empty: 'Нет продуктовых поступлений за выбранный период.'
+      });
+    }
+
+    function profitRefreshProductLineSelect(revenueFacts) {
+      const select = document.getElementById('profit-product-line-select');
+      const grouped = profitToEntries(profitGroupSum(revenueFacts, 'articleParent'));
+      const current = profitState.productLine || select.value || 'all';
+      select.innerHTML = '<option value="all">Все продуктовые линейки</option>' + grouped.map(function profitProductLineOption(item) {
+        return '<option value="' + profitEscapeHtml(item.label) + '">' + profitEscapeHtml(item.label) + ' · ' + profitFormatCompact(item.value) + '</option>';
+      }).join('');
+      select.value = current === 'all' || grouped.some(function profitHasProductLine(item) { return item.label === current; }) ? current : 'all';
+      profitState.productLine = select.value || 'all';
+    }
+
+    function profitBuildProductGroups(facts, view) {
+      const registry = {};
+      facts.forEach(function profitCollectProductGroup(fact) {
+        if (fact.managementType !== 'revenue' && fact.managementType !== 'directExpense') return;
+        const key = profitGetProductGroupKey(fact, view);
+        if (!registry[key]) registry[key] = { label: key, revenue: 0, direct: 0, value: 0, marginRate: 0 };
+        if (fact.managementType === 'revenue') registry[key].revenue += Number(fact.amount || 0);
+        if (fact.managementType === 'directExpense') registry[key].direct += Number(fact.amount || 0);
+      });
+
+      return Object.keys(registry).map(function profitMapProductGroup(key) {
+        const item = registry[key];
+        item.value = item.revenue + item.direct;
+        item.marginRate = profitSafePercent(item.value, item.revenue);
+        item.tone = item.marginRate >= 30 ? 'green' : item.marginRate < 15 ? 'red' : '';
+        return item;
+      }).sort(function profitSortProductGroups(a, b) {
+        return b.value - a.value;
+      });
+    }
+
+    function profitGetProductGroupKey(fact, view) {
+      if (view === 'direction') return fact.direction || 'Без направления';
+      if (view === 'product') return fact.article || 'Без продукта';
+      return fact.articleParent || 'Без линейки';
+    }
+
+    function profitCalculateProductMetrics(facts) {
+      const revenue = facts.reduce(function profitSumProductRevenue(sum, fact) {
+        return fact.managementType === 'revenue' ? sum + Number(fact.amount || 0) : sum;
+      }, 0);
+      const direct = facts.reduce(function profitSumProductDirect(sum, fact) {
+        return fact.managementType === 'directExpense' ? sum + Number(fact.amount || 0) : sum;
+      }, 0);
+      const margin = revenue + direct;
+      return { revenue: revenue, direct: direct, margin: margin, marginRate: profitSafePercent(margin, revenue) };
+    }
+
+    function profitGetProductViewLabel(view) {
+      if (view === 'direction') return 'направления';
+      if (view === 'product') return 'продукты';
+      return 'линейки';
+    }
+
     function profitSetExpenseView(view) {
       profitState.expenseView = view;
       ['category', 'direction', 'article'].forEach(function profitToggleView(item) { document.getElementById('profit-expense-view-' + item).classList.toggle('is-active', item === view); });
@@ -549,11 +817,22 @@
     function profitRenderExpenseStructure(facts) {
       const key = profitState.expenseView === 'direction' ? 'direction' : profitState.expenseView === 'article' ? 'article' : 'articleParent';
       const expenses = facts.filter(function profitOnlyExpenses(fact) { return ['directExpense', 'indirectExpense', 'tax', 'nonOperating', 'investment'].indexOf(fact.managementType) !== -1; });
-      const grouped = profitToEntries(profitGroupAbs(expenses, key)).slice(0, 9);
-      const total = grouped.reduce(function profitSumSlices(sum, item) { return sum + item.value; }, 0);
+      const allGrouped = profitToEntries(profitGroupAbs(expenses, key));
+      const grouped = profitBuildVisibleProfitEntries(allGrouped, 9);
+      const total = allGrouped.reduce(function profitSumAllSlices(sum, item) { return sum + item.value; }, 0);
       profitSetText('profit-expense-total', profitFormatCompact(total));
       profitRenderDonut(grouped, total);
       profitRenderSlices(grouped, total);
+    }
+
+    function profitBuildVisibleProfitEntries(entries, limit) {
+      const safeLimit = Number(limit || 9);
+      if (entries.length <= safeLimit) return entries;
+      const visible = entries.slice(0, safeLimit);
+      const otherValue = entries.slice(safeLimit).reduce(function profitSumOtherEntries(sum, item) {
+        return sum + Number(item.value || 0);
+      }, 0);
+      return visible.concat([{ label: 'Прочие статьи', value: otherValue }]);
     }
 
     function profitRenderDonut(items, total) {
@@ -669,6 +948,53 @@
       }
     }
 
+    function profitRenderInsights(facts, metrics) {
+      const monthly = profitBuildMonthlyMetrics(facts);
+      const products = profitBuildProductGroups(facts, 'line');
+      const directions = ['Азарово', 'Северная', 'Валуйки'].map(function profitInsightDirection(direction) {
+        const source = facts.filter(function profitFilterInsightDirection(fact) { return fact.direction === direction; });
+        const directionMetrics = profitCalculateMetrics(source);
+        return {
+          label: direction,
+          revenue: directionMetrics.revenue,
+          ebitda: directionMetrics.ebitda,
+          margin: directionMetrics.ebitdaMargin
+        };
+      });
+      const negativeMonths = monthly.filter(function profitNegativeMonth(month) { return month.ebitda < 0; });
+      const lowDirections = directions.filter(function profitLowDirection(item) { return item.revenue > 0 && item.margin < 15; });
+      const topProduct = products[0] || null;
+      const cfoUnallocated = facts.filter(function profitFactNoCfo(fact) { return fact.cfo === 'ЦФО не распределено'; }).length;
+      const unclear = facts.filter(function profitFactUnclear(fact) { return String(fact.articleParent || '').toLowerCase().indexOf('выяснить') !== -1; }).reduce(function profitSumUnclear(sum, fact) { return sum + Math.abs(Number(fact.amount || 0)); }, 0);
+
+      profitRenderInsightList('profit-good-list', [
+        metrics.ebitda > 0 ? 'Операционная модель в плюсе: EBITDA ' + profitFormatCurrency(metrics.ebitda) + '.' : 'Даже при минусе EBITDA дашборд показывает, где именно ломается экономика.',
+        metrics.ebitdaMargin >= 15 ? 'Рентабельность EBITDA в рабочей зоне: ' + profitFormatPercent(metrics.ebitdaMargin) + '.' : 'Появилась прозрачная база для восстановления EBITDA margin.',
+        topProduct ? 'Крупнейшая продуктовая линейка по маржинальному доходу: ' + topProduct.label + ' (' + profitFormatCurrency(topProduct.value) + ').' : 'Продуктовые поступления пока не выделены в выбранном срезе.'
+      ]);
+
+      profitRenderInsightList('profit-risk-list', [
+        metrics.ebitdaMargin < 15 ? 'EBITDA margin ниже 15%: зона операционного риска, нужен аудит ФОТ, аренды и управленческих расходов.' : 'EBITDA margin не в красной зоне, но динамику нужно контролировать ежемесячно.',
+        negativeMonths.length ? 'Есть месяцы с отрицательной EBITDA: ' + negativeMonths.map(function profitMonthName(item) { return item.label; }).join(', ') + '.' : 'Месяцев с отрицательной EBITDA в текущем срезе не найдено.',
+        lowDirections.length ? 'Направления с низкой рентабельностью: ' + lowDirections.map(function profitLowDirectionName(item) { return item.label + ' (' + profitFormatPercent(item.margin) + ')'; }).join(', ') + '.' : 'Критически слабые направления по EBITDA margin не выделены.',
+        cfoUnallocated ? 'Есть строки без ЦФО: ' + profitFormatNumber(cfoUnallocated) + '. Это риск качества управленческой аналитики.' : 'ЦФО заполнены в текущем срезе.',
+        unclear ? 'Есть статья «Выяснить»: ' + profitFormatCurrency(unclear) + '. Требуется разнести до закрытия отчета.' : 'Статья «Выяснить» не влияет на текущий срез.'
+      ]);
+
+      profitRenderInsightList('profit-focus-list', [
+        'Сверить P&L с ОДДС: прибыль показывает начисление, деньги показывают фактическую ликвидность.',
+        'Проверить топ ЦФО по маржинальному доходу: где высокая выручка не превращается в валовую прибыль.',
+        'Развернуть продуктовые линейки до продуктов при выбранном направлении: группы, смены и программы покажут источник маржи.',
+        metrics.investment < 0 ? 'Отдельно оценить CAPEX/Строительство ЗВД: ' + profitFormatCurrency(metrics.investment) + ', чтобы не смешивать операционную прибыль с инвестициями.' : 'CAPEX не давит на итоговую прибыль в текущем срезе.'
+      ]);
+    }
+
+    function profitRenderInsightList(id, items) {
+      document.getElementById(id).innerHTML = items.map(function profitMapInsight(item) {
+        return '<li>' + profitEscapeHtml(item) + '</li>';
+      }).join('');
+    }
+
     function profitRenderBars(containerId, items, options) {
       const settings = options || {};
       const container = document.getElementById(containerId);
@@ -686,11 +1012,29 @@
     function profitGroupSum(facts, key) { return facts.reduce(function profitReduceGroup(result, fact) { const group = fact[key] || 'Не распределено'; result[group] = (result[group] || 0) + Number(fact.amount || 0); return result; }, {}); }
     function profitGroupAbs(facts, key) { return facts.reduce(function profitReduceAbs(result, fact) { const group = fact[key] || 'Не распределено'; result[group] = (result[group] || 0) + Math.abs(Number(fact.amount || 0)); return result; }, {}); }
     function profitToEntries(grouped) { return Object.keys(grouped).map(function profitMapEntry(key) { return { label: key, value: grouped[key] }; }).sort(function profitSortEntries(a, b) { return Math.abs(b.value) - Math.abs(a.value); }); }
-    function profitSortMonths(a, b) { if (a.schoolMonthNumber !== b.schoolMonthNumber) return a.schoolMonthNumber - b.schoolMonthNumber; return String(a.key).localeCompare(String(b.key)); }
+    function profitSortMonths(a, b) { return String(a.key).localeCompare(String(b.key)); }
     function profitSafePercent(numerator, denominator) { return denominator ? numerator / denominator * 100 : 0; }
     function profitSetStatus(value, note) { document.getElementById('profit-status-value').textContent = value; document.getElementById('profit-status-note').textContent = note; }
     function profitSetText(id, value) { document.getElementById(id).textContent = value; }
     function profitShowLoader(isVisible) { document.getElementById('profit-loader').classList.toggle('is-visible', isVisible); }
+    function profitSetSignal(id, tone, text) {
+      const element = document.getElementById(id);
+      element.classList.remove('profit-kpi__signal--green', 'profit-kpi__signal--yellow', 'profit-kpi__signal--red');
+      element.classList.add('profit-kpi__signal--' + tone);
+      element.textContent = text;
+    }
+    function profitGetMarginStatus(value) {
+      if (value >= 30) return 'сильная зона';
+      if (value >= 15) return 'здоровая зона';
+      return 'операционный риск';
+    }
+    function profitGetNetMarginStatus(value) {
+      if (value >= 20) return 'чистая норма';
+      if (value >= 10) return 'тонкая маржа';
+      return 'риск прибыли';
+    }
+    function profitOpenHelp() { document.getElementById('profit-help-modal').classList.add('is-visible'); }
+    function profitCloseHelp() { document.getElementById('profit-help-modal').classList.remove('is-visible'); }
     function profitFormatCurrency(value) { return new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format(Math.round(Number(value || 0))) + ' ₽'; }
     function profitFormatNumber(value) { return new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format(Number(value || 0)); }
     function profitFormatPercent(value) { return new Intl.NumberFormat('ru-RU', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(Number(value || 0)) + '%'; }
