@@ -3160,15 +3160,19 @@
 
     function cashRenderCfoChart(facts) {
       const isReceiptMode = cashState.mode === 'inflow';
-      const metric = isReceiptMode ? 'inflow' : 'outflow';
+      const metric = isReceiptMode ? 'cashReceiptNetValue' : 'cashPaymentNetValue';
       const source = facts.filter(function cashFilterMode(fact) {
-        return isReceiptMode ? cashIsIncome(fact) : cashIsExpense(fact);
+        const value = isReceiptMode
+          ? cashGetCashReceiptNetValue(fact)
+          : cashGetCashPaymentNetValue(fact);
+        return Math.abs(Number(value || 0)) >= 0.01;
       });
       const grouped = cashBuildCfoChartEntries(source, facts, metric);
+      const visibleGrouped = cashBuildVisibleCfoEntries(grouped, 12);
 
       cashRenderBars(
         'cash-cfo-chart',
-        grouped.slice(0, 12),
+        visibleGrouped,
         { alertShare: 0.3, empty: 'Нет данных по ЦФО.' }
       );
       cashRenderUnallocatedCfoWarning(facts);
@@ -3277,8 +3281,8 @@
     function cashBuildCfoChartEntries(source, allFilteredFacts, metric) {
       const grouped = cashGroupSum(source, 'cfo', metric);
       const educationExpenseBase = allFilteredFacts.reduce(function cashSumEducationExpenses(sum, fact) {
-        return cashIsExpense(fact) && cashIsEducationCfo(fact.cfo)
-          ? sum + Number(fact.outflow || 0)
+        return Math.abs(cashGetCashPaymentNetValue(fact)) >= 0.01 && cashIsEducationCfo(fact.cfo)
+          ? sum + Number(cashGetCashPaymentNetValue(fact) || 0)
           : sum;
       }, 0);
 
@@ -3298,10 +3302,35 @@
         });
     }
 
+    function cashBuildVisibleCfoEntries(entries, limit) {
+      const safeLimit = Number(limit || 12);
+
+      if (entries.length <= safeLimit) {
+        return entries;
+      }
+
+      const visible = entries.slice(0, safeLimit);
+      const hidden = entries.slice(safeLimit);
+      const hiddenValue = cashRound(hidden.reduce(function cashSumHiddenCfo(sum, item) {
+        return sum + Number(item.value || 0);
+      }, 0));
+
+      if (Math.abs(hiddenValue) < 0.01) {
+        return visible;
+      }
+
+      return visible.concat([{
+        label: 'Прочие ЦФО',
+        value: hiddenValue,
+        tooltip: 'Прочие ЦФО: ' + cashFormatCurrency(hiddenValue)
+          + '\nСумма всех ЦФО за пределами ТОП-' + safeLimit + ', чтобы график сходился с итогом.',
+      }]);
+    }
+
     function cashBuildCfoTooltip(cfo, value, educationExpenseBase, metric) {
       const baseText = cfo + ': ' + cashFormatCurrency(value);
 
-      if (metric !== 'outflow' || !cashIsAdministrativeCfo(cfo)) {
+      if (metric !== 'cashPaymentNetValue' || !cashIsAdministrativeCfo(cfo)) {
         return baseText;
       }
 
@@ -3318,13 +3347,15 @@
     function cashRenderUnallocatedCfoWarning(facts) {
       const warning = document.getElementById('cash-cfo-unallocated-warning');
       const warningText = document.getElementById('cash-cfo-unallocated-warning-text');
-      const expenses = facts.filter(cashIsExpense);
+      const expenses = facts.filter(function cashFilterCfoWarningExpense(fact) {
+        return Math.abs(cashGetCashPaymentNetValue(fact)) >= 0.01;
+      });
       const totalOutflow = expenses.reduce(function cashSumTotalOutflow(sum, fact) {
-        return sum + Number(fact.outflow || 0);
+        return sum + Number(cashGetCashPaymentNetValue(fact) || 0);
       }, 0);
       const unallocatedOutflow = expenses.reduce(function cashSumUnallocated(sum, fact) {
         return cashIsUnallocatedCfo(fact.cfo)
-          ? sum + Number(fact.outflow || 0)
+          ? sum + Number(cashGetCashPaymentNetValue(fact) || 0)
           : sum;
       }, 0);
       const share = totalOutflow ? unallocatedOutflow / totalOutflow * 100 : 0;
