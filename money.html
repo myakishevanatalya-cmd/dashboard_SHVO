@@ -766,24 +766,8 @@
       box-shadow: 0 0 22px rgba(39, 211, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
 
-    .cash-product-summary__card--leader::after {
-      content: "лидер";
-      position: absolute;
-      top: 10px;
-      right: 12px;
-      padding: 2px 7px;
-      border-radius: 999px;
-      background: rgba(101, 223, 255, 0.16);
-      color: var(--cash-cyan-soft);
-      font-size: 9px;
-      font-weight: 900;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
     .cash-product-summary__card--leader .cash-product-summary__value {
       color: var(--cash-cyan-soft);
-      padding-right: 44px;
     }
 
     .cash-product-summary__label {
@@ -4533,11 +4517,17 @@
     }
 
     function cashGetCashReceiptNetValue(fact) {
-      return cashIsIncome(fact) ? Number(fact.cashFlowValue || fact.inflow || 0) : 0;
+      if (!cashIsIncome(fact)) return 0;
+      return fact.cashFlowValue !== undefined && fact.cashFlowValue !== null
+        ? Number(fact.cashFlowValue || 0)
+        : Number(fact.inflow || 0);
     }
 
     function cashGetCashPaymentNetValue(fact) {
-      return cashIsExpense(fact) ? Number(fact.outflow || 0) : 0;
+      if (!cashIsExpense(fact)) return 0;
+      return fact.outflow !== undefined && fact.outflow !== null
+        ? Number(fact.outflow || 0)
+        : Math.abs(Number(fact.cashFlowValue || 0));
     }
 
     function cashIsAdministrativeCfo(cfo) {
