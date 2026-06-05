@@ -65,6 +65,31 @@
       line-height: 1.65;
     }
 
+    .cash-date-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      margin-top: 16px;
+      padding: 9px 13px;
+      border: 1px solid rgba(101, 223, 255, 0.34);
+      border-radius: 999px;
+      background: rgba(39, 211, 255, 0.09);
+      color: #e9f7ff;
+      font-size: 13px;
+      font-weight: 800;
+      box-shadow: 0 0 18px rgba(39, 211, 255, 0.08);
+    }
+
+    .cash-date-pill__icon {
+      color: var(--cash-cyan-soft);
+    }
+
+    .cash-date-pill__muted {
+      color: var(--cash-muted);
+      font-weight: 700;
+    }
+
     .cash-status {
       display: grid;
       align-content: center;
@@ -668,6 +693,36 @@
       border: 1px solid rgba(125, 157, 202, 0.18);
       border-radius: 18px;
       background: rgba(26, 41, 68, 0.56);
+    }
+
+    .cash-product-summary__card--leader {
+      position: relative;
+      overflow: hidden;
+      border-color: rgba(101, 223, 255, 0.46);
+      background:
+        radial-gradient(circle at 100% 0%, rgba(39, 211, 255, 0.18), transparent 38%),
+        rgba(26, 41, 68, 0.72);
+      box-shadow: 0 0 22px rgba(39, 211, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+
+    .cash-product-summary__card--leader::after {
+      content: "лидер";
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(101, 223, 255, 0.16);
+      color: var(--cash-cyan-soft);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .cash-product-summary__card--leader .cash-product-summary__value {
+      color: var(--cash-cyan-soft);
+      padding-right: 44px;
     }
 
     .cash-product-summary__label {
@@ -1812,6 +1867,11 @@
         Модель строится от фиксированного баланса 4 311 060,98 ₽ на 01.09.2025,
         исключает внутренние перемещения и раскладывает потоки по трем разделам ОДДС.
       </p>
+      <div class="cash-date-pill" id="cash-period-pill">
+        <span class="cash-date-pill__icon">●</span>
+        <span class="cash-date-pill__muted">Срез:</span>
+        <span id="cash-period-pill-text">текущий месяц</span>
+      </div>
       <button class="cash-button cash-button--ghost cash-help-button" id="cash-owner-help-open" type="button">
         ❓ Как читать дашборд
       </button>
@@ -2057,7 +2117,7 @@
         <span class="cash-product-summary__label">Поступления среза</span>
         <strong class="cash-product-summary__value" id="cash-product-total">—</strong>
       </div>
-      <div class="cash-product-summary__card">
+      <div class="cash-product-summary__card cash-product-summary__card--leader">
         <span class="cash-product-summary__label">Лидер</span>
         <strong class="cash-product-summary__value" id="cash-product-leader">—</strong>
       </div>
@@ -2379,6 +2439,7 @@
       cashState.config = response.data.config || cashState.config;
 
       cashPopulateFilters();
+      cashApplyDefaultCurrentMonth();
       cashRender();
       cashSetStatus('Готово', 'Загружено транзакций: ' + cashFormatNumber(cashState.facts.length));
     }
@@ -2394,6 +2455,43 @@
       cashRefreshCfoSelect();
       cashFillSelect('cash-filter-parent', cashState.directories.articleParents || [], 'Все родительские статьи', 'articleParent', 'value', 'label');
       cashRefreshArticleSelect();
+    }
+
+    function cashApplyDefaultCurrentMonth() {
+      if (cashState.filters.dateFrom || cashState.filters.dateTo || !cashState.facts.length) {
+        cashUpdatePeriodPill();
+        return;
+      }
+
+      const lastFact = cashState.facts
+        .slice()
+        .sort(function cashSortFactsByDate(a, b) {
+          return cashGetFactDateTime(b) - cashGetFactDateTime(a);
+        })[0];
+
+      if (!lastFact || !lastFact.monthKey) {
+        cashUpdatePeriodPill();
+        return;
+      }
+
+      const monthStart = new Date(lastFact.monthKey + 'T00:00:00');
+      const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
+      const dateFrom = cashFormatInputDate(monthStart);
+      const dateTo = cashFormatInputDate(monthEnd);
+
+      document.getElementById('cash-filter-date-from').value = dateFrom;
+      document.getElementById('cash-filter-date-to').value = dateTo;
+      cashState.filters.dateFrom = dateFrom;
+      cashState.filters.dateTo = dateTo;
+      cashUpdatePeriodPill();
+    }
+
+    function cashGetFactDateTime(fact) {
+      if (fact.operationDateValue) return Number(fact.operationDateValue);
+      if (fact.operationDate) return new Date(fact.operationDate + 'T00:00:00').getTime();
+      if (fact.period) return new Date(fact.period + 'T00:00:00').getTime();
+      if (fact.monthKey) return new Date(fact.monthKey + 'T00:00:00').getTime();
+      return 0;
     }
 
     function cashFillSelect(id, items, allLabel, filterKey, valueField, labelField) {
@@ -2463,6 +2561,7 @@
       cashState.filters.cfo = document.getElementById('cash-filter-cfo').value;
       cashState.filters.articleParent = document.getElementById('cash-filter-parent').value;
       cashState.filters.article = document.getElementById('cash-filter-article').value;
+      cashUpdatePeriodPill();
     }
 
     function cashResetFilters() {
@@ -2478,6 +2577,7 @@
       document.getElementById('cash-filter-date-from').value = '';
       document.getElementById('cash-filter-date-to').value = '';
       cashPopulateFilters();
+      cashApplyDefaultCurrentMonth();
       cashRender();
     }
 
@@ -4294,7 +4394,42 @@
         month: 'long',
         year: 'numeric',
       }).format(new Date());
-      element.textContent = 'Дата просмотра: ' + formattedDate;
+      element.textContent = 'Сегодня: ' + formattedDate;
+      cashUpdatePeriodPill();
+    }
+
+    function cashUpdatePeriodPill() {
+      const element = document.getElementById('cash-period-pill-text');
+      if (!element) return;
+
+      const dateFrom = cashState.filters.dateFrom || document.getElementById('cash-filter-date-from').value;
+      const dateTo = cashState.filters.dateTo || document.getElementById('cash-filter-date-to').value;
+
+      if (dateFrom && dateTo) {
+        element.textContent = cashFormatDisplayDate(dateFrom) + ' — ' + cashFormatDisplayDate(dateTo);
+      } else if (dateFrom) {
+        element.textContent = 'с ' + cashFormatDisplayDate(dateFrom);
+      } else if (dateTo) {
+        element.textContent = 'по ' + cashFormatDisplayDate(dateTo);
+      } else {
+        element.textContent = 'все доступные данные';
+      }
+    }
+
+    function cashFormatInputDate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return year + '-' + month + '-' + day;
+    }
+
+    function cashFormatDisplayDate(value) {
+      const date = new Date(value + 'T00:00:00');
+      return new Intl.DateTimeFormat('ru-RU', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }).format(date).replace('.', '');
     }
 
     function cashFormatCurrency(value) {
