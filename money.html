@@ -2170,6 +2170,7 @@
       <div class="cash-toggle cash-toggle--wide">
         <button class="cash-toggle__button is-cash-active" id="cash-product-mode-line" type="button">Линейки</button>
         <button class="cash-toggle__button" id="cash-product-mode-product" type="button">Продукты</button>
+        <button class="cash-toggle__button" id="cash-product-mode-direction" type="button">Направления</button>
       </div>
     </div>
 
@@ -2459,6 +2460,9 @@
       document.getElementById('cash-product-mode-product').addEventListener('click', function cashClickProductProduct() {
         cashSetProductMode('product');
       });
+      document.getElementById('cash-product-mode-direction').addEventListener('click', function cashClickProductDirection() {
+        cashSetProductMode('direction');
+      });
       document.getElementById('cash-product-line-select').addEventListener('change', cashHandleProductLineChange);
       document.getElementById('cash-drill-close').addEventListener('click', cashCloseDrilldown);
       document.getElementById('cash-mobile-filter-toggle').addEventListener('click', cashToggleMobileFilters);
@@ -2671,14 +2675,18 @@
       cashState.productMode = mode;
       document.getElementById('cash-product-mode-line').classList.toggle('is-cash-active', mode === 'line');
       document.getElementById('cash-product-mode-product').classList.toggle('is-cash-active', mode === 'product');
+      document.getElementById('cash-product-mode-direction').classList.toggle('is-cash-active', mode === 'direction');
       cashRenderProductLines(cashGetFilteredFacts());
     }
 
     function cashHandleProductLineChange() {
       cashState.productLine = document.getElementById('cash-product-line-select').value || 'all';
-      cashState.productMode = 'product';
-      document.getElementById('cash-product-mode-line').classList.remove('is-cash-active');
-      document.getElementById('cash-product-mode-product').classList.add('is-cash-active');
+      if (cashState.productMode !== 'direction') {
+        cashState.productMode = 'product';
+      }
+      document.getElementById('cash-product-mode-line').classList.toggle('is-cash-active', cashState.productMode === 'line');
+      document.getElementById('cash-product-mode-product').classList.toggle('is-cash-active', cashState.productMode === 'product');
+      document.getElementById('cash-product-mode-direction').classList.toggle('is-cash-active', cashState.productMode === 'direction');
       cashRenderProductLines(cashGetFilteredFacts());
     }
 
@@ -3152,7 +3160,7 @@
 
     function cashRenderCfoChart(facts) {
       const isReceiptMode = cashState.mode === 'inflow';
-      const metric = isReceiptMode ? 'cashReceiptNetValue' : 'cashPaymentNetValue';
+      const metric = isReceiptMode ? 'inflow' : 'outflow';
       const source = facts.filter(function cashFilterMode(fact) {
         return isReceiptMode ? cashIsIncome(fact) : cashIsExpense(fact);
       });
@@ -3293,7 +3301,7 @@
     function cashBuildCfoTooltip(cfo, value, educationExpenseBase, metric) {
       const baseText = cfo + ': ' + cashFormatCurrency(value);
 
-      if (metric !== 'cashPaymentNetValue' || !cashIsAdministrativeCfo(cfo)) {
+      if (metric !== 'outflow' || !cashIsAdministrativeCfo(cfo)) {
         return baseText;
       }
 
@@ -3386,7 +3394,8 @@
       });
       const mode = cashState.productMode || 'line';
       cashRefreshProductLineSelect(revenueFacts);
-      const preparedFacts = mode === 'product' && cashState.productLine !== 'all'
+      cashUpdateProductLineNote(cashState.productLine || 'all');
+      const preparedFacts = mode !== 'line' && cashState.productLine !== 'all'
         ? revenueFacts.filter(function cashFilterSelectedProductLine(fact) {
           return cashGetFactArticleParent(fact) === cashState.productLine;
         })
@@ -3436,6 +3445,24 @@
         : 'Сейчас показаны продукты внутри линейки «' + nextValue + '». Каждая строка — значение поля «Статья ДДС».';
     }
 
+    function cashUpdateProductLineNote(lineValue) {
+      const note = document.getElementById('cash-product-line-note');
+      const mode = cashState.productMode || 'line';
+
+      if (mode === 'direction') {
+        note.textContent = lineValue === 'all'
+          ? 'Сейчас направления сравниваются по всем продуктовым линейкам. Чтобы сравнить только «Лагерь» или «Основное образование», выберите линейку в списке.'
+          : 'Сейчас линейка «' + lineValue + '» ранжируется по направлениям: Азарово, Северная, Валуйки и другие площадки. Глобальный фильтр «Направление» можно использовать для просмотра только одной площадки.';
+        return;
+      }
+
+      note.textContent = lineValue === 'all'
+        ? 'Сейчас показаны все продуктовые линейки. Для детализации выберите конкретную линейку — например «Лагерь» или «Доп. образование».'
+        : mode === 'product'
+          ? 'Сейчас показаны продукты внутри линейки «' + lineValue + '». Каждая строка — значение поля «Статья ДДС».'
+          : 'Сейчас показаны все продуктовые линейки. Выберите режим «Продукты» или «Направления» для детализации.';
+    }
+
     function cashBuildProductGroups(facts, mode) {
       const registry = {};
 
@@ -3469,6 +3496,10 @@
     }
 
     function cashGetProductGroupKey(fact, mode) {
+      if (mode === 'direction') {
+        return fact.direction || 'Без направления';
+      }
+
       if (mode === 'product') {
         return fact.article || 'Без статьи ДДС';
       }
@@ -3512,11 +3543,15 @@
       const top3 = grouped.slice(0, 3).reduce(function cashSumTopProducts(sum, item) {
         return sum + item.value;
       }, 0);
-      const title = mode === 'product'
+      const title = mode === 'direction'
         ? (cashState.productLine === 'all'
-          ? 'Какие продукты формируют денежные поступления'
-          : 'Какие продукты внутри линейки «' + cashState.productLine + '» лидируют')
-        : 'Какие линейки держат денежный поток';
+          ? 'Какие направления формируют продуктовые поступления'
+          : 'Как линейка «' + cashState.productLine + '» распределена по направлениям')
+        : mode === 'product'
+          ? (cashState.productLine === 'all'
+            ? 'Какие продукты формируют денежные поступления'
+            : 'Какие продукты внутри линейки «' + cashState.productLine + '» лидируют')
+          : 'Какие линейки держат денежный поток';
 
       if (!leader || !total) {
         target.innerHTML = '<p class="cash-product-insight__eyebrow">Инсайт</p>'
@@ -4402,7 +4437,7 @@
     function cashGroupSum(items, key, valueKey) {
       return items.reduce(function cashReduceGroup(result, item) {
         const group = cashGetFactValue(item, key);
-        result[group] = (result[group] || 0) + Number(item[valueKey] || 0);
+        result[group] = (result[group] || 0) + Number(cashGetFactValue(item, valueKey) || 0);
         return result;
       }, {});
     }
@@ -4518,16 +4553,12 @@
 
     function cashGetCashReceiptNetValue(fact) {
       if (!cashIsIncome(fact)) return 0;
-      return fact.cashFlowValue !== undefined && fact.cashFlowValue !== null
-        ? Number(fact.cashFlowValue || 0)
-        : Number(fact.inflow || 0);
+      return Number(fact.inflow || 0);
     }
 
     function cashGetCashPaymentNetValue(fact) {
       if (!cashIsExpense(fact)) return 0;
-      return fact.outflow !== undefined && fact.outflow !== null
-        ? Number(fact.outflow || 0)
-        : Math.abs(Number(fact.cashFlowValue || 0));
+      return Number(fact.outflow || 0);
     }
 
     function cashIsAdministrativeCfo(cfo) {
