@@ -1,27 +1,701 @@
-<section class="page-placeholder page-placeholder--profit">
-  <div class="page-placeholder__hero">
-    <p class="page-placeholder__eyebrow">Раздел</p>
-    <h3 class="page-placeholder__title">Прибыль</h3>
-    <p class="page-placeholder__text">
-      Здесь появится анализ выручки, валовой прибыли, маржинальности и операционной эффективности бизнеса.
-    </p>
+<section class="profit-page" id="profit-page">
+  <style>
+    :root {
+      --profit-bg: #0f172a;
+      --profit-panel: #14213a;
+      --profit-deep: #101a2f;
+      --profit-field: #203250;
+      --profit-line: rgba(139, 184, 226, .28);
+      --profit-text: #f8fbff;
+      --profit-muted: #aebbd0;
+      --profit-cyan: #78d7ff;
+      --profit-teal: #7fd8cc;
+      --profit-gold: #f3cf74;
+      --profit-red: #ffb4bd;
+      --profit-purple: #aaa7f7;
+      --profit-font: Manrope, Inter, Montserrat, system-ui, sans-serif;
+    }
+
+    .profit-page, .profit-page * { box-sizing: border-box; }
+
+    .profit-page {
+      min-height: 100vh;
+      padding: 26px;
+      color: var(--profit-text);
+      font-family: var(--profit-font);
+      background:
+        radial-gradient(circle at 12% 0%, rgba(120, 215, 255, .13), transparent 28%),
+        linear-gradient(180deg, #111b31 0%, var(--profit-bg) 72%);
+    }
+
+    .profit-shell { display: grid; gap: 18px; max-width: 1900px; margin: 0 auto; }
+
+    .profit-hero,
+    .profit-filters,
+    .profit-kpi,
+    .profit-panel,
+    .profit-modal__body {
+      border: 1px solid var(--profit-line);
+      background: linear-gradient(145deg, rgba(26, 41, 68, .95), rgba(13, 22, 39, .97));
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .32);
+    }
+
+    .profit-hero {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      padding: 24px;
+      border-radius: 26px;
+    }
+
+    .profit-eyebrow {
+      margin: 0 0 8px;
+      color: var(--profit-cyan);
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    .profit-title {
+      margin: 0;
+      font-size: clamp(24px, 3vw, 38px);
+      line-height: 1.06;
+      letter-spacing: -.04em;
+    }
+
+    .profit-subtitle {
+      max-width: 980px;
+      margin: 12px 0 0;
+      color: var(--profit-muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .profit-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+
+    .profit-status {
+      min-width: 230px;
+      padding: 18px;
+      border: 1px solid rgba(120, 215, 255, .45);
+      border-radius: 18px;
+      background: rgba(15, 23, 42, .58);
+    }
+
+    .profit-label,
+    .profit-status__label,
+    .profit-kpi__label {
+      margin: 0;
+      color: #bfd1ec;
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .profit-status__value { margin: 8px 0 6px; color: var(--profit-cyan); font-size: 22px; font-weight: 950; }
+    .profit-status__note { margin: 0; color: var(--profit-muted); font-size: 12px; font-weight: 800; }
+
+    .profit-button {
+      border: 1px solid var(--profit-line);
+      border-radius: 13px;
+      padding: 11px 16px;
+      color: var(--profit-text);
+      background: rgba(28, 43, 72, .82);
+      font: 950 14px/1 var(--profit-font);
+      cursor: pointer;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .profit-button:hover,
+    .profit-button:focus-visible {
+      border-color: var(--profit-cyan);
+      outline: none;
+      transform: translateY(-1px);
+    }
+
+    .profit-button--primary {
+      color: #061526;
+      background: linear-gradient(135deg, var(--profit-cyan), var(--profit-teal));
+      box-shadow: 0 0 24px rgba(120, 215, 255, .22);
+    }
+
+    .profit-filters {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(145px, 1fr));
+      gap: 12px;
+      padding: 18px;
+      border-radius: 22px;
+    }
+
+    .profit-field { display: grid; gap: 8px; min-width: 0; }
+
+    .profit-input,
+    .profit-select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--profit-line);
+      border-radius: 12px;
+      padding: 0 12px;
+      color: var(--profit-text);
+      background: var(--profit-field);
+      font: 850 13px/1 var(--profit-font);
+      outline: none;
+    }
+
+    .profit-input:focus,
+    .profit-select:focus {
+      border-color: var(--profit-cyan);
+      box-shadow: 0 0 0 4px rgba(120, 215, 255, .16);
+    }
+
+    .profit-select option { color: #111827; background: #fff; }
+    .profit-filter-actions { display: flex; align-items: end; gap: 10px; }
+
+    .profit-kpis {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(145px, 1fr));
+      gap: 12px;
+    }
+
+    .profit-kpi { min-width: 0; padding: 16px; border-radius: 18px; }
+    .profit-kpi__value { margin: 10px 0 6px; font-size: clamp(20px, 1.65vw, 27px); font-weight: 950; letter-spacing: -.04em; white-space: nowrap; }
+    .profit-kpi__value--accent { color: var(--profit-cyan); }
+    .profit-kpi__value--gold { color: var(--profit-gold); }
+    .profit-kpi__note { margin: 0; min-height: 30px; color: var(--profit-muted); font-size: 12px; line-height: 1.35; }
+
+    .profit-grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr); gap: 18px; }
+    .profit-panel { min-width: 0; padding: 18px; border-radius: 22px; }
+    .profit-panel__head { display: flex; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+    .profit-panel__title { margin: 0; font-size: 18px; font-weight: 950; letter-spacing: -.02em; }
+    .profit-panel__hint { margin: 5px 0 0; color: var(--profit-muted); font-size: 12px; line-height: 1.45; }
+
+    .profit-toggle { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid var(--profit-line); border-radius: 999px; background: rgba(12, 20, 35, .7); }
+    .profit-toggle__button { border: 0; border-radius: 999px; padding: 8px 12px; color: #cfe0f8; background: transparent; font: 950 12px/1 var(--profit-font); cursor: pointer; }
+    .profit-toggle__button.is-active { color: #061526; background: linear-gradient(135deg, var(--profit-cyan), var(--profit-teal)); }
+
+    .profit-bars { display: grid; gap: 10px; }
+    .profit-bar { display: grid; grid-template-columns: minmax(120px, 210px) 1fr minmax(105px, auto); align-items: center; gap: 12px; min-height: 30px; }
+    .profit-bar__label { overflow: hidden; font-size: 13px; font-weight: 850; text-overflow: ellipsis; white-space: nowrap; }
+    .profit-bar__track { position: relative; height: 16px; overflow: hidden; border: 1px solid rgba(139,184,226,.22); border-radius: 999px; background: rgba(33, 48, 78, .82); }
+    .profit-bar__fill { position: absolute; inset: 0 auto 0 0; width: var(--profit-width, 0%); min-width: 4px; border-radius: inherit; background: linear-gradient(90deg, var(--profit-cyan), var(--profit-teal)); }
+    .profit-bar__fill--green { background: linear-gradient(90deg, #6be6a8, #99f0c3); }
+    .profit-bar__fill--red { background: linear-gradient(90deg, #ffb4bd, #ff7f92); }
+    .profit-bar__value { color: #dbeaff; font-size: 13px; font-weight: 950; text-align: right; white-space: nowrap; }
+
+    .profit-combo { min-height: 360px; overflow-x: auto; padding: 14px 10px 4px; }
+    .profit-combo__plot { position: relative; display: grid; grid-template-columns: repeat(var(--profit-cols, 1), minmax(72px, 1fr)); align-items: end; gap: 14px; min-width: 720px; height: 300px; border-bottom: 1px solid rgba(139,184,226,.28); background: repeating-linear-gradient(to top, transparent, transparent 74px, rgba(139,184,226,.12) 75px); }
+    .profit-combo__month { position: relative; display: flex; align-items: end; justify-content: center; height: 100%; gap: 5px; }
+    .profit-combo__column { width: 18px; min-height: 2px; border-radius: 10px 10px 0 0; }
+    .profit-combo__column--revenue { background: linear-gradient(180deg, var(--profit-cyan), rgba(120,215,255,.35)); }
+    .profit-combo__column--expense { background: linear-gradient(180deg, var(--profit-purple), rgba(170,167,247,.35)); }
+    .profit-combo__point { position: absolute; left: 50%; bottom: var(--profit-bottom, 0%); width: 13px; height: 13px; border: 3px solid var(--profit-gold); border-radius: 50%; background: var(--profit-deep); transform: translate(-50%, 50%); z-index: 2; }
+    .profit-combo__point.is-negative { border-color: var(--profit-red); }
+    .profit-combo__label { position: absolute; left: 50%; bottom: calc(var(--profit-bottom, 0%) + 14px); color: #dbeaff; font-size: 11px; font-weight: 950; white-space: nowrap; transform: translateX(-50%); }
+    .profit-combo__x { display: grid; grid-template-columns: repeat(var(--profit-cols, 1), minmax(72px, 1fr)); gap: 14px; min-width: 720px; margin-top: 10px; color: #d6e5fb; font-size: 12px; font-weight: 850; text-align: center; }
+    .profit-legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; color: var(--profit-muted); font-size: 12px; font-weight: 850; }
+    .profit-legend__item::before { content: ''; display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 50%; background: var(--profit-cyan); }
+    .profit-legend__item--expense::before { background: var(--profit-purple); }
+    .profit-legend__item--ebitda::before { background: var(--profit-gold); }
+
+    .profit-donut-grid { display: grid; grid-template-columns: 210px 1fr; gap: 20px; align-items: center; }
+    .profit-donut { display: grid; place-items: center; width: 176px; height: 176px; margin: auto; border-radius: 50%; background: conic-gradient(var(--profit-cyan) 0deg, var(--profit-field) 0deg); box-shadow: inset 0 0 0 34px var(--profit-deep), 0 0 36px rgba(120,215,255,.14); }
+    .profit-donut__center { width: 104px; height: 104px; display: grid; place-items: center; border-radius: 50%; background: var(--profit-bg); text-align: center; }
+    .profit-donut__amount { display: block; font-size: 17px; font-weight: 950; }
+    .profit-donut__label { display: block; margin-top: 3px; color: var(--profit-muted); font-size: 10px; font-weight: 950; text-transform: uppercase; }
+    .profit-slices { display: grid; gap: 8px; }
+    .profit-slice { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; padding: 9px 11px; border: 1px solid var(--profit-line); border-radius: 12px; background: rgba(32,50,80,.64); }
+    .profit-slice__name { overflow: hidden; font-size: 12px; font-weight: 850; text-overflow: ellipsis; white-space: nowrap; }
+    .profit-slice__share { color: var(--profit-cyan); font-size: 12px; font-weight: 950; }
+    .profit-slice__value { color: #dbeaff; font-size: 12px; font-weight: 850; text-align: right; white-space: nowrap; }
+
+    .profit-alert { display: none; padding: 14px 16px; border: 1px solid rgba(255,180,189,.55); border-radius: 16px; color: #ffd7dc; background: rgba(109,40,55,.28); font-size: 13px; line-height: 1.45; }
+    .profit-alert.is-visible { display: block; }
+    .profit-empty { padding: 18px; color: var(--profit-muted); text-align: center; }
+
+    .profit-matrix-wrap { overflow: auto; max-height: 620px; border: 1px solid var(--profit-line); border-radius: 16px; background: rgba(12,20,35,.45); }
+    .profit-matrix { width: 100%; min-width: 1080px; border-collapse: collapse; font-size: 12px; }
+    .profit-matrix th, .profit-matrix td { padding: 10px 12px; border-bottom: 1px solid rgba(139,184,226,.16); text-align: right; white-space: nowrap; }
+    .profit-matrix th:first-child, .profit-matrix td:first-child { position: sticky; left: 0; z-index: 2; min-width: 310px; text-align: left; background: #15233b; }
+    .profit-matrix th { position: sticky; top: 0; z-index: 3; color: #dbeaff; background: #203250; font-weight: 950; }
+    .profit-matrix__total td, .profit-matrix__total td:first-child { color: #fff; background: rgba(120,215,255,.12); font-weight: 950; }
+    .profit-matrix__result td, .profit-matrix__result td:first-child { color: var(--profit-gold); background: rgba(243,207,116,.12); font-weight: 950; }
+    .profit-matrix__detail td:first-child { padding-left: 32px; color: #dbeaff; }
+    .profit-matrix__cell { cursor: pointer; }
+    .profit-matrix__cell:hover { color: var(--profit-cyan); background: rgba(120,215,255,.08); }
+
+    .profit-loader, .profit-modal { display: none; position: fixed; inset: 0; z-index: 80; background: rgba(5,10,20,.72); backdrop-filter: blur(10px); }
+    .profit-loader.is-visible { display: grid; place-items: center; color: var(--profit-cyan); font-weight: 950; }
+    .profit-modal.is-visible { display: grid; place-items: center; padding: 24px; }
+    .profit-modal__body { width: min(1100px, 96vw); max-height: 86vh; overflow: auto; border-radius: 22px; padding: 20px; }
+    .profit-modal__head { display: flex; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+    .profit-modal__title { margin: 0; font-size: 20px; font-weight: 950; }
+    .profit-drill-table { width: 100%; min-width: 800px; border-collapse: collapse; font-size: 12px; }
+    .profit-drill-table th, .profit-drill-table td { padding: 10px; border-bottom: 1px solid var(--profit-line); text-align: left; vertical-align: top; }
+    .profit-drill-table th { color: #dbeaff; background: #203250; }
+
+    @media (max-width: 1280px) {
+      .profit-kpis { grid-template-columns: repeat(4, 1fr); }
+      .profit-filters { grid-template-columns: repeat(3, 1fr); }
+      .profit-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .profit-page { padding: 14px; }
+      .profit-hero { grid-template-columns: 1fr; padding: 18px; }
+      .profit-filters { grid-template-columns: 1fr; }
+      .profit-kpis { grid-template-columns: repeat(2, 1fr); }
+      .profit-donut-grid { grid-template-columns: 1fr; }
+      .profit-panel__head { display: grid; }
+      .profit-bar { grid-template-columns: 1fr; gap: 5px; }
+      .profit-bar__value { text-align: left; }
+    }
+
+    @media (max-width: 480px) {
+      .profit-kpis { grid-template-columns: 1fr; }
+      .profit-title { font-size: 25px; }
+      .profit-status { min-width: 0; }
+    }
+  </style>
+
+  <div class="profit-loader" id="profit-loader">Загружаю P&amp;L...</div>
+
+  <div class="profit-shell">
+    <header class="profit-hero">
+      <div>
+        <p class="profit-eyebrow">P&amp;L · метод начисления</p>
+        <h2 class="profit-title">Прибыль: доходы, расходы и операционная эффективность</h2>
+        <p class="profit-subtitle">Дашборд показывает реальную прибыльность бизнеса по начислению: выручку, прямые и косвенные расходы, EBITDA, налоги, инвестиционные затраты и итоговую чистую прибыль.</p>
+        <div class="profit-actions">
+          <button class="profit-button profit-button--primary" id="profit-refresh" type="button">Обновить</button>
+          <button class="profit-button" id="profit-reset" type="button">Сбросить</button>
+        </div>
+      </div>
+      <aside class="profit-status">
+        <p class="profit-status__label">статус</p>
+        <p class="profit-status__value" id="profit-status-value">Загрузка</p>
+        <p class="profit-status__note" id="profit-status-note">Подключаю лист «Прибыль»</p>
+      </aside>
+    </header>
+
+    <section class="profit-filters">
+      <label class="profit-field"><span class="profit-label">период с</span><input class="profit-input" id="profit-date-from" type="date"></label>
+      <label class="profit-field"><span class="profit-label">период по</span><input class="profit-input" id="profit-date-to" type="date"></label>
+      <label class="profit-field"><span class="profit-label">учебный год</span><select class="profit-select" id="profit-school-year"></select></label>
+      <label class="profit-field"><span class="profit-label">направление</span><select class="profit-select" id="profit-direction"></select></label>
+      <label class="profit-field"><span class="profit-label">ЦФО</span><select class="profit-select" id="profit-cfo"></select></label>
+      <div class="profit-filter-actions"><button class="profit-button profit-button--primary" id="profit-apply" type="button">Применить</button></div>
+      <label class="profit-field"><span class="profit-label">статья родитель</span><select class="profit-select" id="profit-article-parent"></select></label>
+      <label class="profit-field"><span class="profit-label">статья</span><select class="profit-select" id="profit-article"></select></label>
+    </section>
+
+    <section class="profit-kpis">
+      <article class="profit-kpi"><p class="profit-kpi__label">выручка</p><p class="profit-kpi__value profit-kpi__value--accent" id="profit-kpi-revenue">—</p><p class="profit-kpi__note">чистое сальдо доходных статей</p></article>
+      <article class="profit-kpi"><p class="profit-kpi__label">валовая прибыль</p><p class="profit-kpi__value" id="profit-kpi-gross">—</p><p class="profit-kpi__note">выручка плюс прямые расходы по знаку</p></article>
+      <article class="profit-kpi"><p class="profit-kpi__label">EBITDA</p><p class="profit-kpi__value profit-kpi__value--gold" id="profit-kpi-ebitda">—</p><p class="profit-kpi__note">операционная прибыль до налогов</p></article>
+      <article class="profit-kpi"><p class="profit-kpi__label">рентабельность EBITDA</p><p class="profit-kpi__value" id="profit-kpi-ebitda-margin">—</p><p class="profit-kpi__note">EBITDA / выручка</p></article>
+      <article class="profit-kpi"><p class="profit-kpi__label">чистая прибыль до инвестиций</p><p class="profit-kpi__value" id="profit-kpi-net-before-invest">—</p><p class="profit-kpi__note">с учетом налогов и внеоперационки</p></article>
+      <article class="profit-kpi"><p class="profit-kpi__label">рентабельность чистой прибыли</p><p class="profit-kpi__value" id="profit-kpi-net-margin">—</p><p class="profit-kpi__note">чистая прибыль / выручка</p></article>
+      <article class="profit-kpi"><p class="profit-kpi__label">чистая прибыль итоговая</p><p class="profit-kpi__value profit-kpi__value--gold" id="profit-kpi-net-final">—</p><p class="profit-kpi__note">с учетом строительства ЗВД</p></article>
+    </section>
+
+    <div class="profit-alert" id="profit-cfo-alert"></div>
+
+    <section class="profit-grid">
+      <article class="profit-panel">
+        <div class="profit-panel__head"><div><h3 class="profit-panel__title">Динамика доходов, расходов и EBITDA</h3><p class="profit-panel__hint">Столбцы - выручка и операционные расходы, точки - EBITDA.</p></div></div>
+        <div class="profit-combo" id="profit-combo-chart"></div>
+        <div class="profit-legend"><span class="profit-legend__item">выручка</span><span class="profit-legend__item profit-legend__item--expense">операционные расходы</span><span class="profit-legend__item profit-legend__item--ebitda">EBITDA</span></div>
+      </article>
+
+      <article class="profit-panel">
+        <div class="profit-panel__head"><div><h3 class="profit-panel__title">Рейтинг ЦФО по маржинальному доходу</h3><p class="profit-panel__hint">Маржинальный доход = выручка ЦФО плюс прямые расходы по знаку.</p></div></div>
+        <div class="profit-bars" id="profit-cfo-margin-chart"></div>
+      </article>
+    </section>
+
+    <section class="profit-grid">
+      <article class="profit-panel">
+        <div class="profit-panel__head"><div><h3 class="profit-panel__title">Рентабельность направлений</h3><p class="profit-panel__hint">Светофор: зеленый ≥ 30%, бирюза 15-30%, красный &lt; 15%.</p></div></div>
+        <div class="profit-bars" id="profit-direction-margin-chart"></div>
+      </article>
+
+      <article class="profit-panel">
+        <div class="profit-panel__head">
+          <div><h3 class="profit-panel__title">Структура затрат</h3><p class="profit-panel__hint">Расходы пересобираются по выбранному ракурсу.</p></div>
+          <div class="profit-toggle">
+            <button class="profit-toggle__button is-active" id="profit-expense-view-category" type="button">Категории</button>
+            <button class="profit-toggle__button" id="profit-expense-view-direction" type="button">Направления</button>
+            <button class="profit-toggle__button" id="profit-expense-view-article" type="button">Элементы</button>
+          </div>
+        </div>
+        <div class="profit-donut-grid">
+          <div class="profit-donut" id="profit-expense-donut"><div class="profit-donut__center"><span class="profit-donut__amount" id="profit-expense-total">—</span><span class="profit-donut__label">расходы</span></div></div>
+          <div class="profit-slices" id="profit-expense-list"></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="profit-panel">
+      <div class="profit-panel__head"><div><h3 class="profit-panel__title">Интерактивная матрица P&amp;L</h3><p class="profit-panel__hint">Двойной клик по сумме открывает первичные документы.</p></div></div>
+      <div class="profit-matrix-wrap" id="profit-matrix-wrap"></div>
+    </section>
   </div>
 
-  <div class="page-placeholder__grid">
-    <article class="page-placeholder__tile">
-      <p class="page-placeholder__tile-label">Выручка</p>
-      <p class="page-placeholder__tile-value">Скоро</p>
-      <p class="page-placeholder__tile-note">Данные будут подключены к листу «Прибыль».</p>
-    </article>
-    <article class="page-placeholder__tile">
-      <p class="page-placeholder__tile-label">Маржинальность</p>
-      <p class="page-placeholder__tile-value">Скоро</p>
-      <p class="page-placeholder__tile-note">Расчёты появятся после серверной логики.</p>
-    </article>
-    <article class="page-placeholder__tile">
-      <p class="page-placeholder__tile-label">Динамика</p>
-      <p class="page-placeholder__tile-value">Скоро</p>
-      <p class="page-placeholder__tile-note">Графики будут добавлены в отдельном этапе.</p>
-    </article>
+  <div class="profit-modal" id="profit-drill-modal">
+    <div class="profit-modal__body">
+      <div class="profit-modal__head">
+        <div><h3 class="profit-modal__title" id="profit-drill-title">Детализация</h3><p class="profit-panel__hint" id="profit-drill-note">Первичные документы по выбранной ячейке.</p></div>
+        <button class="profit-button" id="profit-drill-close" type="button">Закрыть</button>
+      </div>
+      <div id="profit-drill-content"></div>
+    </div>
   </div>
+
+  <script>
+    const profitState = { facts: [], dictionaries: {}, defaults: {}, expenseView: 'category', lastFilters: {} };
+
+    document.addEventListener('DOMContentLoaded', profitInit);
+
+    function profitInit() {
+      profitBindEvents();
+      profitLoadData({});
+    }
+
+    function profitBindEvents() {
+      document.getElementById('profit-refresh').addEventListener('click', function profitClickRefresh() { profitLoadData(profitGetFilters()); });
+      document.getElementById('profit-apply').addEventListener('click', function profitClickApply() { profitLoadData(profitGetFilters()); });
+      document.getElementById('profit-reset').addEventListener('click', profitResetFilters);
+      document.getElementById('profit-direction').addEventListener('change', function profitChangeDirection() { profitLoadData(profitGetFilters()); });
+      document.getElementById('profit-article-parent').addEventListener('change', function profitChangeParent() { profitLoadData(profitGetFilters()); });
+      document.getElementById('profit-expense-view-category').addEventListener('click', function profitViewCategory() { profitSetExpenseView('category'); });
+      document.getElementById('profit-expense-view-direction').addEventListener('click', function profitViewDirection() { profitSetExpenseView('direction'); });
+      document.getElementById('profit-expense-view-article').addEventListener('click', function profitViewArticle() { profitSetExpenseView('article'); });
+      document.getElementById('profit-drill-close').addEventListener('click', profitCloseDrillModal);
+      document.getElementById('profit-drill-modal').addEventListener('click', function profitClickModal(event) { if (event.target.id === 'profit-drill-modal') profitCloseDrillModal(); });
+    }
+
+    function profitLoadData(filters) {
+      profitShowLoader(true);
+      profitState.lastFilters = filters || {};
+      google.script.run
+        .withSuccessHandler(profitHandleData)
+        .withFailureHandler(profitHandleFailure)
+        .profitGetDashboardData({ filters: filters || {} });
+    }
+
+    function profitHandleData(response) {
+      profitShowLoader(false);
+      if (!response || !response.success) {
+        profitSetStatus('Ошибка', response && response.error ? response.error.message : 'Не удалось загрузить данные.');
+        return;
+      }
+
+      profitState.facts = response.data.facts || [];
+      profitState.dictionaries = response.data.dictionaries || {};
+      profitState.defaults = response.data.defaults || {};
+      profitApplyDefaultsIfEmpty();
+      profitFillFilters();
+      profitRenderAll();
+      profitSetStatus('Готово', 'Загружено строк: ' + profitFormatNumber(response.data.meta.filteredRows || 0));
+    }
+
+    function profitHandleFailure(error) {
+      profitShowLoader(false);
+      profitSetStatus('Ошибка', error && error.message ? error.message : 'Серверная ошибка.');
+    }
+
+    function profitApplyDefaultsIfEmpty() {
+      if (!document.getElementById('profit-date-from').value && profitState.defaults.dateFrom) document.getElementById('profit-date-from').value = profitState.defaults.dateFrom;
+      if (!document.getElementById('profit-date-to').value && profitState.defaults.dateTo) document.getElementById('profit-date-to').value = profitState.defaults.dateTo;
+    }
+
+    function profitFillFilters() {
+      profitFillSelect('profit-school-year', profitState.dictionaries.schoolYears || [], 'Все учебные годы', profitState.lastFilters.schoolYear || '');
+      profitFillSelect('profit-direction', profitState.dictionaries.directions || [], 'Все направления', profitState.lastFilters.direction || '');
+      profitFillSelect('profit-cfo', profitState.dictionaries.cfo || [], 'Все ЦФО', profitState.lastFilters.cfo || '');
+      profitFillSelect('profit-article-parent', profitState.dictionaries.articleParents || [], 'Все родительские статьи', profitState.lastFilters.articleParent || '');
+      profitFillSelect('profit-article', profitState.dictionaries.articles || [], 'Все статьи', profitState.lastFilters.article || '');
+    }
+
+    function profitFillSelect(id, values, placeholder, selectedValue) {
+      const select = document.getElementById(id);
+      const current = selectedValue || select.value || '';
+      select.innerHTML = '<option value="">' + profitEscapeHtml(placeholder) + '</option>' + values.map(function profitMapOption(value) {
+        return '<option value="' + profitEscapeHtml(value) + '">' + profitEscapeHtml(value) + '</option>';
+      }).join('');
+      select.value = values.indexOf(current) !== -1 ? current : '';
+    }
+
+    function profitGetFilters() {
+      return {
+        dateFrom: document.getElementById('profit-date-from').value,
+        dateTo: document.getElementById('profit-date-to').value,
+        schoolYear: document.getElementById('profit-school-year').value,
+        direction: document.getElementById('profit-direction').value,
+        cfo: document.getElementById('profit-cfo').value,
+        articleParent: document.getElementById('profit-article-parent').value,
+        article: document.getElementById('profit-article').value,
+      };
+    }
+
+    function profitResetFilters() {
+      ['profit-school-year', 'profit-direction', 'profit-cfo', 'profit-article-parent', 'profit-article'].forEach(function profitClearSelect(id) { document.getElementById(id).value = ''; });
+      document.getElementById('profit-date-from').value = profitState.defaults.dateFrom || '';
+      document.getElementById('profit-date-to').value = profitState.defaults.dateTo || '';
+      profitLoadData(profitGetFilters());
+    }
+
+    function profitRenderAll() {
+      const metrics = profitCalculateMetrics(profitState.facts);
+      profitRenderKpis(metrics);
+      profitRenderComboChart(profitBuildMonthlyMetrics(profitState.facts));
+      profitRenderCfoMarginChart(profitState.facts);
+      profitRenderDirectionMarginChart(profitState.facts);
+      profitRenderExpenseStructure(profitState.facts);
+      profitRenderMatrix(profitState.facts);
+      profitRenderAlerts(profitState.facts);
+    }
+
+    function profitCalculateMetrics(facts) {
+      const revenue = profitSumByType(facts, 'revenue');
+      const direct = profitSumByType(facts, 'directExpense');
+      const indirect = profitSumByType(facts, 'indirectExpense');
+      const tax = profitSumByType(facts, 'tax');
+      const investment = profitSumByType(facts, 'investment');
+      const nonOperating = profitSumByType(facts, 'nonOperating');
+      const gross = revenue + direct;
+      const ebitda = gross + indirect;
+      const netBeforeInvest = ebitda + tax + nonOperating;
+      const netFinal = netBeforeInvest + investment;
+      return { revenue, direct, indirect, tax, investment, nonOperating, gross, ebitda, ebitdaMargin: profitSafePercent(ebitda, revenue), netBeforeInvest, netMargin: profitSafePercent(netBeforeInvest, revenue), netFinal };
+    }
+
+    function profitRenderKpis(metrics) {
+      profitSetText('profit-kpi-revenue', profitFormatCurrency(metrics.revenue));
+      profitSetText('profit-kpi-gross', profitFormatCurrency(metrics.gross));
+      profitSetText('profit-kpi-ebitda', profitFormatCurrency(metrics.ebitda));
+      profitSetText('profit-kpi-ebitda-margin', profitFormatPercent(metrics.ebitdaMargin));
+      profitSetText('profit-kpi-net-before-invest', profitFormatCurrency(metrics.netBeforeInvest));
+      profitSetText('profit-kpi-net-margin', profitFormatPercent(metrics.netMargin));
+      profitSetText('profit-kpi-net-final', profitFormatCurrency(metrics.netFinal));
+    }
+
+    function profitBuildMonthlyMetrics(facts) {
+      const registry = {};
+      facts.forEach(function profitCollectMonth(fact) {
+        if (!fact.monthKey) return;
+        if (!registry[fact.monthKey]) registry[fact.monthKey] = { key: fact.monthKey, label: profitShortMonth(fact.month), schoolMonthNumber: fact.schoolMonthNumber, revenue: 0, expenses: 0, ebitda: 0 };
+        if (fact.managementType === 'revenue') registry[fact.monthKey].revenue += fact.amount;
+        if (fact.managementType === 'directExpense' || fact.managementType === 'indirectExpense') registry[fact.monthKey].expenses += fact.amount;
+      });
+      return Object.keys(registry).map(function profitMonthToMetric(key) {
+        const item = registry[key];
+        item.ebitda = item.revenue + item.expenses;
+        item.expenseAbs = Math.abs(item.expenses);
+        return item;
+      }).sort(profitSortMonths);
+    }
+
+    function profitRenderComboChart(months) {
+      const container = document.getElementById('profit-combo-chart');
+      if (!months.length) { container.innerHTML = '<div class="profit-empty">Нет данных за выбранный период.</div>'; return; }
+      const maxColumn = Math.max.apply(null, months.map(function profitMaxColumn(item) { return Math.max(Math.abs(item.revenue), Math.abs(item.expenseAbs)); })) || 1;
+      const ebitdaValues = months.map(function profitMapEbitda(item) { return item.ebitda; });
+      const minEbitda = Math.min.apply(null, ebitdaValues.concat([0]));
+      const maxEbitda = Math.max.apply(null, ebitdaValues.concat([0]));
+      const ebitdaRange = maxEbitda - minEbitda || 1;
+      const plot = months.map(function profitMapComboMonth(item) {
+        const revenueHeight = Math.max(2, Math.abs(item.revenue) / maxColumn * 92);
+        const expenseHeight = Math.max(2, item.expenseAbs / maxColumn * 92);
+        const ebitdaBottom = (item.ebitda - minEbitda) / ebitdaRange * 86 + 4;
+        return '<div class="profit-combo__month" title="' + profitEscapeHtml(item.label) + ': выручка ' + profitFormatCurrency(item.revenue) + ', расходы ' + profitFormatCurrency(item.expenseAbs) + ', EBITDA ' + profitFormatCurrency(item.ebitda) + '"><div class="profit-combo__column profit-combo__column--revenue" style="height:' + revenueHeight + '%"></div><div class="profit-combo__column profit-combo__column--expense" style="height:' + expenseHeight + '%"></div><span class="profit-combo__label" style="--profit-bottom:' + ebitdaBottom + '%">' + profitFormatCompact(item.ebitda) + '</span><span class="profit-combo__point ' + (item.ebitda < 0 ? 'is-negative' : '') + '" style="--profit-bottom:' + ebitdaBottom + '%"></span></div>';
+      }).join('');
+      container.innerHTML = '<div class="profit-combo__plot" style="--profit-cols:' + months.length + '">' + plot + '</div><div class="profit-combo__x" style="--profit-cols:' + months.length + '">' + months.map(function profitMapX(item) { return '<span>' + profitEscapeHtml(item.label) + '</span>'; }).join('') + '</div>';
+    }
+
+    function profitRenderCfoMarginChart(facts) {
+      const registry = {};
+      facts.forEach(function profitCollectCfo(fact) {
+        const cfo = fact.cfo || 'ЦФО не распределено';
+        if (!registry[cfo]) registry[cfo] = { label: cfo, revenue: 0, direct: 0, value: 0 };
+        if (fact.managementType === 'revenue') registry[cfo].revenue += fact.amount;
+        if (fact.managementType === 'directExpense') registry[cfo].direct += fact.amount;
+      });
+      const items = Object.keys(registry).map(function profitCfoItem(key) { const item = registry[key]; item.value = item.revenue + item.direct; return item; }).sort(function profitSortCfo(a, b) { return b.value - a.value; }).slice(0, 12);
+      profitRenderBars('profit-cfo-margin-chart', items, {
+        valueFormatter: function profitCfoValue(item) { return profitFormatCurrency(item.value); },
+        empty: 'Нет данных по ЦФО.'
+      });
+    }
+
+    function profitRenderDirectionMarginChart(facts) {
+      const items = ['Азарово', 'Северная', 'Валуйки'].map(function profitMapDirection(direction) {
+        const source = facts.filter(function profitFilterDirection(fact) { return fact.direction === direction; });
+        const revenue = profitSumByType(source, 'revenue');
+        const ebitda = profitCalculateMetrics(source).ebitda;
+        const margin = profitSafePercent(ebitda, revenue);
+        return { label: direction, value: margin, amount: ebitda, tone: margin >= 30 ? 'green' : margin < 15 ? 'red' : '' };
+      });
+      profitRenderBars('profit-direction-margin-chart', items, { maxValue: 100, valueFormatter: function profitDirectionValue(item) { return profitFormatPercent(item.value) + ' · ' + profitFormatCurrency(item.amount); }, empty: 'Нет данных по направлениям.' });
+    }
+
+    function profitSetExpenseView(view) {
+      profitState.expenseView = view;
+      ['category', 'direction', 'article'].forEach(function profitToggleView(item) { document.getElementById('profit-expense-view-' + item).classList.toggle('is-active', item === view); });
+      profitRenderExpenseStructure(profitState.facts);
+    }
+
+    function profitRenderExpenseStructure(facts) {
+      const key = profitState.expenseView === 'direction' ? 'direction' : profitState.expenseView === 'article' ? 'article' : 'articleParent';
+      const expenses = facts.filter(function profitOnlyExpenses(fact) { return ['directExpense', 'indirectExpense', 'tax', 'nonOperating', 'investment'].indexOf(fact.managementType) !== -1; });
+      const grouped = profitToEntries(profitGroupAbs(expenses, key)).slice(0, 9);
+      const total = grouped.reduce(function profitSumSlices(sum, item) { return sum + item.value; }, 0);
+      profitSetText('profit-expense-total', profitFormatCompact(total));
+      profitRenderDonut(grouped, total);
+      profitRenderSlices(grouped, total);
+    }
+
+    function profitRenderDonut(items, total) {
+      const colors = ['#78d7ff', '#7fd8cc', '#aaa7f7', '#f3cf74', '#ffb4bd', '#83e4ad', '#8bb8e2', '#c4b5fd', '#67e8f9'];
+      let current = 0;
+      const segments = items.map(function profitMapSegment(item, index) { const start = current; const end = total ? current + item.value / total * 360 : current; current = end; return colors[index % colors.length] + ' ' + start + 'deg ' + end + 'deg'; }).join(', ');
+      document.getElementById('profit-expense-donut').style.background = segments ? 'conic-gradient(' + segments + ')' : 'conic-gradient(#203250 0deg 360deg)';
+    }
+
+    function profitRenderSlices(items, total) {
+      document.getElementById('profit-expense-list').innerHTML = items.length ? items.map(function profitMapSlice(item) {
+        const share = total ? item.value / total * 100 : 0;
+        return '<div class="profit-slice" title="' + profitEscapeHtml(item.label) + '"><span class="profit-slice__name">' + profitEscapeHtml(item.label) + '</span><span class="profit-slice__share">' + profitFormatPercent(share) + '</span><span class="profit-slice__value">' + profitFormatCurrency(item.value) + '</span></div>';
+      }).join('') : '<div class="profit-empty">Нет расходов.</div>';
+    }
+
+    function profitRenderMatrix(facts) {
+      const months = profitBuildMonthlyMetrics(facts);
+      const rows = profitBuildMatrixRows(facts, months);
+      const header = '<thead><tr><th>Показатель</th>' + months.map(function profitHeaderMonth(month) { return '<th>' + profitEscapeHtml(month.label) + '</th>'; }).join('') + '<th>Итого</th></tr></thead>';
+      const body = rows.map(function profitMapMatrixRow(row) {
+        const className = row.kind === 'result' ? 'profit-matrix__result' : row.kind === 'total' ? 'profit-matrix__total' : 'profit-matrix__detail';
+        const cells = months.map(function profitMapMatrixCell(month) {
+          const value = row.values[month.key] || 0;
+          return '<td class="profit-matrix__cell" data-profit-type="' + profitEscapeHtml(row.type || '') + '" data-profit-parent="' + profitEscapeHtml(row.articleParent || '') + '" data-profit-month="' + profitEscapeHtml(month.key) + '">' + profitFormatCurrency(value) + '</td>';
+        }).join('');
+        return '<tr class="' + className + '"><td>' + profitEscapeHtml(row.label) + '</td>' + cells + '<td>' + profitFormatCurrency(row.total) + '</td></tr>';
+      }).join('');
+      document.getElementById('profit-matrix-wrap').innerHTML = '<table class="profit-matrix">' + header + '<tbody>' + body + '</tbody></table>';
+      document.querySelectorAll('.profit-matrix__cell').forEach(function profitBindCell(cell) { cell.addEventListener('dblclick', profitOpenDrillFromCell); });
+    }
+
+    function profitBuildMatrixRows(facts, months) {
+      const definitions = [
+        { label: 'Выручка', type: 'revenue', kind: 'total', details: true },
+        { label: 'Прямые расходы', type: 'directExpense', kind: 'total', details: true },
+        { label: 'Валовая прибыль', type: 'gross', kind: 'result' },
+        { label: 'Косвенные расходы', type: 'indirectExpense', kind: 'total', details: true },
+        { label: 'EBITDA', type: 'ebitda', kind: 'result' },
+        { label: 'Налоги', type: 'tax', kind: 'total', details: true },
+        { label: 'Внеоперационная деятельность', type: 'nonOperating', kind: 'total', details: true },
+        { label: 'Чистая прибыль до инвестиций', type: 'netBeforeInvest', kind: 'result' },
+        { label: 'Строительство ЗВД', type: 'investment', kind: 'total', details: true },
+        { label: 'Чистая прибыль итоговая', type: 'netFinal', kind: 'result' },
+      ];
+      const rows = [];
+      definitions.forEach(function profitAddDefinition(definition) {
+        rows.push(profitCreateMatrixRow(facts, months, definition));
+        if (definition.details) profitGetArticleRows(facts, months, definition.type).forEach(function profitPushDetail(row) { rows.push(row); });
+      });
+      return rows;
+    }
+
+    function profitCreateMatrixRow(facts, months, definition) {
+      const values = {};
+      months.forEach(function profitCalcMonth(month) {
+        const source = facts.filter(function profitFilterMonth(fact) { return fact.monthKey === month.key; });
+        const metrics = profitCalculateMetrics(source);
+        values[month.key] = Object.prototype.hasOwnProperty.call(metrics, definition.type) ? metrics[definition.type] : profitSumByType(source, definition.type);
+      });
+      const totalMetrics = profitCalculateMetrics(facts);
+      const total = Object.prototype.hasOwnProperty.call(totalMetrics, definition.type) ? totalMetrics[definition.type] : profitSumByType(facts, definition.type);
+      return { label: definition.label, type: definition.type, kind: definition.kind, values: values, total: total };
+    }
+
+    function profitGetArticleRows(facts, months, type) {
+      const parents = profitToEntries(profitGroupSum(facts.filter(function profitFilterType(fact) { return fact.managementType === type; }), 'articleParent')).sort(function profitSortAbs(a, b) { return Math.abs(b.value) - Math.abs(a.value); });
+      return parents.map(function profitMapParent(parent) {
+        const values = {};
+        months.forEach(function profitDetailMonth(month) {
+          values[month.key] = facts.filter(function profitDetailFilter(fact) { return fact.managementType === type && fact.articleParent === parent.label && fact.monthKey === month.key; }).reduce(function profitDetailSum(sum, fact) { return sum + fact.amount; }, 0);
+        });
+        return { label: '↳ ' + parent.label, type: type, articleParent: parent.label, kind: 'detail', values: values, total: parent.value };
+      });
+    }
+
+    function profitOpenDrillFromCell(event) {
+      const cell = event.currentTarget;
+      const type = cell.dataset.profitType;
+      const articleParent = cell.dataset.profitParent;
+      const monthKey = cell.dataset.profitMonth;
+      if (!type || ['gross', 'ebitda', 'netBeforeInvest', 'netFinal'].indexOf(type) !== -1) return;
+      const rows = profitState.facts.filter(function profitDrillFilter(fact) {
+        if (monthKey && fact.monthKey !== monthKey) return false;
+        if (type && fact.managementType !== type) return false;
+        if (articleParent && fact.articleParent !== articleParent) return false;
+        return true;
+      });
+      profitShowDrill(rows, type, articleParent, monthKey);
+    }
+
+    function profitShowDrill(rows, type, articleParent, monthKey) {
+      document.getElementById('profit-drill-title').textContent = 'Детализация P&L';
+      document.getElementById('profit-drill-note').textContent = [type, articleParent, monthKey].filter(Boolean).join(' · ');
+      document.getElementById('profit-drill-content').innerHTML = rows.length ? '<div style="overflow:auto"><table class="profit-drill-table"><thead><tr><th>Дата</th><th>Регистратор</th><th>Сумма</th><th>ЦФО</th><th>Статья доходов и расходов</th></tr></thead><tbody>' + rows.map(function profitMapDrill(row) {
+        return '<tr><td>' + profitEscapeHtml(row.dateLabel) + '</td><td>' + profitEscapeHtml(row.registrar) + '</td><td>' + profitFormatCurrency(row.amount) + '</td><td>' + profitEscapeHtml(row.cfo) + '</td><td>' + profitEscapeHtml(row.article) + '</td></tr>';
+      }).join('') + '</tbody></table></div>' : '<div class="profit-empty">По этой ячейке нет первичных документов.</div>';
+      document.getElementById('profit-drill-modal').classList.add('is-visible');
+    }
+
+    function profitCloseDrillModal() { document.getElementById('profit-drill-modal').classList.remove('is-visible'); }
+
+    function profitRenderAlerts(facts) {
+      const totalExpenses = facts.filter(function profitExpenseForAlert(fact) { return fact.managementType === 'directExpense' || fact.managementType === 'indirectExpense'; }).reduce(function profitSumExpenseAlert(sum, fact) { return sum + Math.abs(fact.amount); }, 0);
+      const unallocated = facts.filter(function profitUnallocatedCfo(fact) { return fact.cfo === 'ЦФО не распределено'; }).reduce(function profitSumUnallocated(sum, fact) { return sum + Math.abs(fact.amount); }, 0);
+      const alert = document.getElementById('profit-cfo-alert');
+      if (totalExpenses && unallocated / totalExpenses > .05) {
+        alert.classList.add('is-visible');
+        alert.innerHTML = '<strong>⚠ ЦФО не распределено превышает 5%</strong><br>Сумма без ЦФО: ' + profitFormatCurrency(unallocated) + ', доля в расходах: ' + profitFormatPercent(unallocated / totalExpenses * 100) + '. Нужно проверить аналитику в 1С.';
+      } else {
+        alert.classList.remove('is-visible');
+        alert.innerHTML = '';
+      }
+    }
+
+    function profitRenderBars(containerId, items, options) {
+      const settings = options || {};
+      const container = document.getElementById(containerId);
+      if (!items.length) { container.innerHTML = '<div class="profit-empty">' + profitEscapeHtml(settings.empty || 'Нет данных.') + '</div>'; return; }
+      const maxValue = settings.maxValue || Math.max.apply(null, items.map(function profitBarMax(item) { return Math.abs(item.value); })) || 1;
+      container.innerHTML = items.map(function profitMapBar(item) {
+        const width = Math.min(100, Math.abs(item.value) / maxValue * 100);
+        const tone = item.tone === 'green' ? 'profit-bar__fill--green' : item.tone === 'red' ? 'profit-bar__fill--red' : '';
+        const value = settings.valueFormatter ? settings.valueFormatter(item) : profitFormatCurrency(item.value);
+        return '<div class="profit-bar" title="' + profitEscapeHtml(item.label) + ': ' + profitEscapeHtml(value) + '"><span class="profit-bar__label">' + profitEscapeHtml(item.label) + '</span><span class="profit-bar__track"><span class="profit-bar__fill ' + tone + '" style="--profit-width:' + width + '%"></span></span><span class="profit-bar__value">' + value + '</span></div>';
+      }).join('');
+    }
+
+    function profitSumByType(facts, type) { return facts.filter(function profitFilterTypeSum(fact) { return fact.managementType === type; }).reduce(function profitSumType(sum, fact) { return sum + Number(fact.amount || 0); }, 0); }
+    function profitGroupSum(facts, key) { return facts.reduce(function profitReduceGroup(result, fact) { const group = fact[key] || 'Не распределено'; result[group] = (result[group] || 0) + Number(fact.amount || 0); return result; }, {}); }
+    function profitGroupAbs(facts, key) { return facts.reduce(function profitReduceAbs(result, fact) { const group = fact[key] || 'Не распределено'; result[group] = (result[group] || 0) + Math.abs(Number(fact.amount || 0)); return result; }, {}); }
+    function profitToEntries(grouped) { return Object.keys(grouped).map(function profitMapEntry(key) { return { label: key, value: grouped[key] }; }).sort(function profitSortEntries(a, b) { return Math.abs(b.value) - Math.abs(a.value); }); }
+    function profitSortMonths(a, b) { if (a.schoolMonthNumber !== b.schoolMonthNumber) return a.schoolMonthNumber - b.schoolMonthNumber; return String(a.key).localeCompare(String(b.key)); }
+    function profitSafePercent(numerator, denominator) { return denominator ? numerator / denominator * 100 : 0; }
+    function profitSetStatus(value, note) { document.getElementById('profit-status-value').textContent = value; document.getElementById('profit-status-note').textContent = note; }
+    function profitSetText(id, value) { document.getElementById(id).textContent = value; }
+    function profitShowLoader(isVisible) { document.getElementById('profit-loader').classList.toggle('is-visible', isVisible); }
+    function profitFormatCurrency(value) { return new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format(Math.round(Number(value || 0))) + ' ₽'; }
+    function profitFormatNumber(value) { return new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format(Number(value || 0)); }
+    function profitFormatPercent(value) { return new Intl.NumberFormat('ru-RU', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(Number(value || 0)) + '%'; }
+    function profitFormatCompact(value) { const number = Number(value || 0); const abs = Math.abs(number); if (abs >= 1000000) return new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }).format(number / 1000000) + ' млн ₽'; if (abs >= 1000) return new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }).format(number / 1000) + ' тыс ₽'; return profitFormatCurrency(number); }
+    function profitShortMonth(month) { return String(month || '').slice(0, 3); }
+    function profitEscapeHtml(value) { return String(value === null || value === undefined ? '' : value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
+  </script>
 </section>
