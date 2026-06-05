@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= app.pageTitle ?></title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --app-bg: #0f172a;
+        --app-bg-soft: #111c34;
+        --app-surface: rgba(15, 23, 42, 0.92);
+        --app-surface-strong: rgba(20, 31, 56, 0.96);
+        --app-border: rgba(148, 163, 184, 0.16);
+        --app-border-strong: rgba(0, 217, 255, 0.32);
+        --app-text: #f8fafc;
+        --app-muted: #94a3b8;
+        --app-muted-strong: #cbd5e1;
+        --app-accent: #00d9ff;
+        --app-accent-soft: rgba(0, 217, 255, 0.14);
+        --app-accent-glow: rgba(0, 217, 255, 0.32);
+        --app-danger: #fb7185;
+        --app-radius-xl: 24px;
+        --app-radius-lg: 18px;
+        --app-radius-md: 14px;
+        --app-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+        --app-sidebar-width: 292px;
+        --app-topbar-height: 82px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-height: 100%;
+        background: var(--app-bg);
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        color: var(--app-text);
+        font-family: Inter, Manrope, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at 12% 10%, rgba(0, 217, 255, 0.16), transparent 30%),
+          radial-gradient(circle at 85% 15%, rgba(56, 189, 248, 0.12), transparent 28%),
+          linear-gradient(135deg, #0b1120 0%, var(--app-bg) 52%, #111827 100%);
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .app-shell {
+        display: grid;
+        grid-template-columns: var(--app-sidebar-width) minmax(0, 1fr);
+        min-height: 100vh;
+      }
+
+      .app-sidebar {
+        position: sticky;
+        top: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        padding: 28px 18px;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(17, 24, 39, 0.94));
+        border-right: 1px solid var(--app-border);
+        box-shadow: 18px 0 54px rgba(0, 0, 0, 0.22);
+        z-index: 20;
+      }
+
+      .app-brand {
+        padding: 0 10px 28px;
+      }
+
+      .app-brand__title {
+        margin: 0;
+        font-family: Manrope, Inter, sans-serif;
+        font-size: 25px;
+        line-height: 1.05;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+      }
+
+      .app-brand__subtitle {
+        margin: 12px 0 0;
+        color: var(--app-muted);
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      .app-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .app-menu__link {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 52px;
+        padding: 14px 16px;
+        color: var(--app-muted-strong);
+        border: 1px solid transparent;
+        border-radius: var(--app-radius-md);
+        transition: color 180ms ease, background 180ms ease, border-color 180ms ease, transform 180ms ease;
+      }
+
+      .app-menu__link::before {
+        width: 10px;
+        height: 10px;
+        content: "";
+        border-radius: 999px;
+        background: rgba(148, 163, 184, 0.34);
+        transition: background 180ms ease, box-shadow 180ms ease;
+      }
+
+      .app-menu__link:hover {
+        color: var(--app-text);
+        background: rgba(148, 163, 184, 0.08);
+        transform: translateX(3px);
+      }
+
+      .app-menu__link.is-active {
+        color: var(--app-accent);
+        background: linear-gradient(90deg, rgba(0, 217, 255, 0.2), rgba(0, 217, 255, 0.06));
+        border-color: var(--app-border-strong);
+        box-shadow: inset 3px 0 0 var(--app-accent), 0 14px 38px rgba(0, 217, 255, 0.08);
+      }
+
+      .app-menu__link.is-active::before {
+        background: var(--app-accent);
+        box-shadow: 0 0 20px var(--app-accent-glow);
+      }
+
+      .app-menu__label {
+        font-family: Manrope, Inter, sans-serif;
+        font-size: 17px;
+        font-weight: 800;
+      }
+
+      .app-sidebar__footer {
+        margin-top: auto;
+        padding: 18px 12px 4px;
+        color: var(--app-muted);
+        font-size: 12px;
+        line-height: 1.5;
+        border-top: 1px solid var(--app-border);
+      }
+
+      .app-main {
+        min-width: 0;
+      }
+
+      .app-topbar {
+        position: sticky;
+        top: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: var(--app-topbar-height);
+        padding: 18px 30px;
+        background: rgba(15, 23, 42, 0.78);
+        border-bottom: 1px solid var(--app-border);
+        backdrop-filter: blur(18px);
+        z-index: 10;
+      }
+
+      .app-page-title {
+        margin: 0;
+        font-family: Manrope, Inter, sans-serif;
+        font-size: 30px;
+        line-height: 1.1;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+      }
+
+      .app-page-description {
+        margin: 7px 0 0;
+        color: var(--app-muted);
+        font-size: 13px;
+      }
+
+      .app-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .app-button {
+        min-height: 38px;
+        padding: 0 15px;
+        color: var(--app-muted-strong);
+        cursor: pointer;
+        background: rgba(15, 23, 42, 0.82);
+        border: 1px solid var(--app-border);
+        border-radius: 12px;
+        transition: transform 180ms ease, color 180ms ease, background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+      }
+
+      .app-button:hover {
+        color: var(--app-text);
+        background: rgba(30, 41, 59, 0.92);
+        border-color: rgba(148, 163, 184, 0.28);
+        transform: translateY(-1px);
+      }
+
+      .app-button--accent {
+        color: #06202a;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--app-accent), #38bdf8);
+        border-color: transparent;
+        box-shadow: 0 10px 30px rgba(0, 217, 255, 0.22);
+      }
+
+      .app-button--accent:hover {
+        color: #03131a;
+        background: linear-gradient(135deg, #67e8f9, var(--app-accent));
+        box-shadow: 0 14px 38px rgba(0, 217, 255, 0.3);
+      }
+
+      .app-content {
+        padding: 28px 30px 40px;
+      }
+
+      .app-content-card {
+        min-height: calc(100vh - var(--app-topbar-height) - 68px);
+        padding: 26px;
+        background:
+          linear-gradient(180deg, rgba(20, 31, 56, 0.72), rgba(15, 23, 42, 0.72)),
+          rgba(15, 23, 42, 0.8);
+        border: 1px solid var(--app-border);
+        border-radius: var(--app-radius-xl);
+        box-shadow: var(--app-shadow);
+      }
+
+      .page-placeholder {
+        display: grid;
+        gap: 20px;
+      }
+
+      .page-placeholder__hero {
+        padding: 24px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 86% 10%, rgba(0, 217, 255, 0.18), transparent 30%),
+          linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.82));
+        border: 1px solid var(--app-border);
+        border-radius: var(--app-radius-lg);
+      }
+
+      .page-placeholder__eyebrow {
+        margin: 0 0 12px;
+        color: var(--app-accent);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .page-placeholder__title {
+        margin: 0;
+        font-family: Manrope, Inter, sans-serif;
+        font-size: 27px;
+        line-height: 1.15;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+
+      .page-placeholder__text {
+        max-width: 720px;
+        margin: 12px 0 0;
+        color: var(--app-muted);
+        font-size: 15px;
+        line-height: 1.65;
+      }
+
+      .page-placeholder__grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .page-placeholder__tile {
+        min-height: 126px;
+        padding: 18px;
+        background: rgba(15, 23, 42, 0.58);
+        border: 1px solid var(--app-border);
+        border-radius: var(--app-radius-lg);
+      }
+
+      .page-placeholder__tile-label {
+        margin: 0;
+        color: var(--app-muted);
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .page-placeholder__tile-value {
+        margin: 16px 0 0;
+        color: var(--app-text);
+        font-family: Manrope, Inter, sans-serif;
+        font-size: 22px;
+        font-weight: 800;
+      }
+
+      .page-placeholder__tile-note {
+        margin: 8px 0 0;
+        color: var(--app-muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      @media (max-width: 768px) {
+        :root {
+          --app-sidebar-width: 100%;
+          --app-topbar-height: auto;
+        }
+
+        .app-shell {
+          display: block;
+        }
+
+        .app-sidebar {
+          position: relative;
+          height: auto;
+          padding: 22px 18px 16px;
+          border-right: 0;
+          border-bottom: 1px solid var(--app-border);
+        }
+
+        .app-brand {
+          padding-bottom: 16px;
+        }
+
+        .app-brand__title {
+          max-width: 460px;
+          font-size: 23px;
+        }
+
+        .app-menu {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 8px;
+        }
+
+        .app-menu__link {
+          justify-content: center;
+          min-height: 46px;
+          padding: 12px 10px;
+        }
+
+        .app-menu__link::before,
+        .app-sidebar__footer {
+          display: none;
+        }
+
+        .app-menu__label {
+          font-size: 14px;
+        }
+
+        .app-topbar {
+          position: relative;
+          align-items: flex-start;
+          gap: 18px;
+          padding: 22px 18px;
+        }
+
+        .app-page-title {
+          font-size: 26px;
+        }
+
+        .app-actions {
+          flex-wrap: wrap;
+          justify-content: flex-end;
+        }
+
+        .app-content {
+          padding: 18px;
+        }
+
+        .app-content-card {
+          min-height: auto;
+          padding: 20px;
+        }
+
+        .page-placeholder__grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .app-sidebar {
+          padding: 20px 14px 14px;
+        }
+
+        .app-brand__title {
+          font-size: 21px;
+        }
+
+        .app-menu {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .app-topbar {
+          display: block;
+          padding: 20px 14px;
+        }
+
+        .app-actions {
+          justify-content: flex-start;
+          margin-top: 16px;
+        }
+
+        .app-button {
+          flex: 1 1 auto;
+          padding: 0 12px;
+        }
+
+        .app-content {
+          padding: 14px;
+        }
+
+        .app-content-card,
+        .page-placeholder__hero {
+          padding: 18px;
+          border-radius: 18px;
+        }
+
+        .page-placeholder__title {
+          font-size: 23px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell" data-current-page="<?= app.currentPage ?>">
+      <aside class="app-sidebar" aria-label="Основная навигация">
+        <div class="app-brand">
+          <h1 class="app-brand__title">Управление финансовым состоянием компании</h1>
+          <p class="app-brand__subtitle">Управляй финансами легко</p>
+        </div>
+
+        <nav class="app-menu">
+          <? for (var i = 0; i < app.menuItems.length; i++) { ?>
+            <? var item = app.menuItems[i]; ?>
+            <a
+              class="app-menu__link <?= item.isActive ? 'is-active' : '' ?>"
+              href="<?= item.url ?>"
+              <?= item.isActive ? 'aria-current="page"' : '' ?>
+            >
+              <span class="app-menu__label"><?= item.title ?></span>
+            </a>
+          <? } ?>
+        </nav>
+
+        <div class="app-sidebar__footer">
+          Web-приложение на Google Apps Script для финансового дашборда.
+        </div>
+      </aside>
+
+      <main class="app-main">
+        <header class="app-topbar">
+          <div>
+            <h2 class="app-page-title"><?= app.pageTitle ?></h2>
+            <p class="app-page-description"><?= app.pageDescription ?></p>
+          </div>
+
+          <div class="app-actions" aria-label="Действия">
+            <button class="app-button app-button--accent" type="button" data-app-action="refresh">Обновить</button>
+            <button class="app-button" type="button" data-app-action="settings">Настройки</button>
+            <button class="app-button" type="button" data-app-action="logout">Выход</button>
+          </div>
+        </header>
+
+        <section class="app-content">
+          <div class="app-content-card">
+            <?!= app.content ?>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      (function () {
+        const actionMessages = {
+          refresh: 'Обновление данных будет подключено на следующем этапе.',
+          settings: 'Настройки будут добавлены позже.',
+          logout: 'Выход будет подключен после настройки авторизации.',
+        };
+
+        document.querySelectorAll('[data-app-action]').forEach(function (button) {
+          button.addEventListener('click', function () {
+            const action = button.getAttribute('data-app-action');
+            const message = actionMessages[action] || 'Функция скоро появится.';
+            window.alert(message);
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

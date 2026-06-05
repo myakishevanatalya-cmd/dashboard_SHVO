@@ -1,0 +1,4313 @@
+<section class="cash-page" id="cash-page">
+  <style>
+    .cash-page {
+      --cash-bg: #0f172a;
+      --cash-panel: #14213a;
+      --cash-panel-deep: #101a2f;
+      --cash-soft: #1a2944;
+      --cash-field: #1d2f4d;
+      --cash-border: rgba(109, 139, 181, 0.34);
+      --cash-text: #f4f8ff;
+      --cash-muted: #b9c7dc;
+      --cash-dim: #8fa2be;
+      --cash-cyan: #27d3ff;
+      --cash-cyan-soft: #65dfff;
+      --cash-teal: #36d6c2;
+      --cash-red: #ff7f8f;
+      --cash-purple: #9ea8ff;
+      --cash-gold: #ffd166;
+
+      display: grid;
+      gap: 18px;
+      color: var(--cash-text);
+      font-family: Manrope, Inter, Montserrat, sans-serif;
+    }
+
+    .cash-hero,
+    .cash-panel,
+    .cash-kpi,
+    .cash-modal__body {
+      background: linear-gradient(180deg, rgba(21, 31, 50, 0.98), rgba(12, 18, 28, 0.94));
+      border: 1px solid var(--cash-border);
+      border-radius: 20px;
+      box-shadow: 0 18px 46px rgba(0, 0, 0, 0.24);
+    }
+
+    .cash-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 18px;
+      padding: 22px;
+    }
+
+    .cash-eyebrow {
+      margin: 0 0 10px;
+      color: var(--cash-cyan);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .cash-title {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.12;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .cash-text {
+      max-width: 880px;
+      margin: 12px 0 0;
+      color: var(--cash-muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .cash-status {
+      display: grid;
+      align-content: center;
+      gap: 8px;
+      padding: 16px;
+      background: rgba(24, 34, 53, 0.9);
+      border: 1px solid rgba(0, 217, 255, 0.38);
+      border-radius: 16px;
+    }
+
+    .cash-status__label {
+      margin: 0;
+      color: var(--cash-muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .cash-status__value {
+      margin: 0;
+      color: var(--cash-cyan);
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .cash-filters {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 12px;
+      padding: 16px;
+      background: rgba(21, 31, 50, 0.94);
+      border: 1px solid var(--cash-border);
+      border-radius: 18px;
+    }
+
+    .cash-field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .cash-field__label {
+      color: #c8d3e4;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .cash-field__control {
+      min-height: 40px;
+      width: 100%;
+      padding: 0 11px;
+      color: #ffffff;
+      background: var(--cash-field);
+      border: 1px solid rgba(148, 163, 184, 0.42);
+      border-radius: 12px;
+      outline: none;
+    }
+
+    .cash-field__control:focus {
+      border-color: rgba(0, 217, 255, 0.55);
+      box-shadow: 0 0 0 4px rgba(0, 217, 255, 0.1);
+    }
+
+    .cash-field__control option {
+      color: #ffffff;
+      background: #182235;
+    }
+
+    .cash-actions {
+      display: flex;
+      align-items: end;
+      gap: 10px;
+    }
+
+    .cash-button {
+      min-height: 40px;
+      padding: 0 14px;
+      color: #ffffff;
+      font-weight: 800;
+      cursor: pointer;
+      background: var(--cash-cyan);
+      border: 0;
+      border-radius: 12px;
+      box-shadow: 0 0 26px rgba(0, 217, 255, 0.22);
+    }
+
+    .cash-button--ghost {
+      color: #cbd5e1;
+      background: var(--cash-soft);
+      border: 1px solid var(--cash-border);
+      box-shadow: none;
+    }
+
+    .cash-kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .cash-kpi {
+      min-height: 126px;
+      padding: 17px;
+    }
+
+    .cash-kpi__label {
+      margin: 0;
+      color: #d6deea;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .cash-kpi__value {
+      margin: 13px 0 0;
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .cash-kpi__note {
+      margin: 8px 0 0;
+      color: var(--cash-muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .cash-kpi__signal {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin: 8px 0 0;
+      padding: 5px 9px;
+      width: fit-content;
+      border: 1px solid rgba(125, 157, 202, 0.18);
+      border-radius: 999px;
+      background: rgba(16, 26, 47, 0.55);
+      color: var(--cash-muted);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .cash-kpi__signal-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #94a3b8;
+      box-shadow: 0 0 10px rgba(148, 163, 184, 0.35);
+    }
+
+    .cash-kpi--buffer-red,
+    .cash-kpi--signal-red {
+      border-color: rgba(255, 138, 152, 0.5);
+      box-shadow: inset 0 0 0 1px rgba(255, 138, 152, 0.18), 0 16px 44px rgba(255, 138, 152, 0.08);
+    }
+
+    .cash-kpi--buffer-red .cash-kpi__signal,
+    .cash-kpi--signal-red .cash-kpi__signal {
+      color: #ffc4cc;
+      border-color: rgba(255, 138, 152, 0.42);
+      background: rgba(255, 138, 152, 0.12);
+    }
+
+    .cash-kpi--buffer-red .cash-kpi__signal-dot,
+    .cash-kpi--signal-red .cash-kpi__signal-dot {
+      background: #ff6b7a;
+      box-shadow: 0 0 12px rgba(255, 107, 122, 0.55);
+    }
+
+    .cash-kpi--buffer-yellow,
+    .cash-kpi--signal-yellow {
+      border-color: rgba(255, 209, 102, 0.46);
+      box-shadow: inset 0 0 0 1px rgba(255, 209, 102, 0.16), 0 16px 44px rgba(255, 209, 102, 0.07);
+    }
+
+    .cash-kpi--buffer-yellow .cash-kpi__signal,
+    .cash-kpi--signal-yellow .cash-kpi__signal {
+      color: #ffe1a3;
+      border-color: rgba(255, 209, 102, 0.42);
+      background: rgba(255, 209, 102, 0.11);
+    }
+
+    .cash-kpi--buffer-yellow .cash-kpi__signal-dot,
+    .cash-kpi--signal-yellow .cash-kpi__signal-dot {
+      background: var(--cash-gold);
+      box-shadow: 0 0 12px rgba(255, 209, 102, 0.48);
+    }
+
+    .cash-kpi--buffer-green,
+    .cash-kpi--signal-green {
+      border-color: rgba(94, 234, 212, 0.42);
+      box-shadow: inset 0 0 0 1px rgba(94, 234, 212, 0.14), 0 16px 44px rgba(94, 234, 212, 0.06);
+    }
+
+    .cash-kpi--buffer-green .cash-kpi__signal,
+    .cash-kpi--signal-green .cash-kpi__signal {
+      color: #a7f3d0;
+      border-color: rgba(94, 234, 212, 0.38);
+      background: rgba(94, 234, 212, 0.1);
+    }
+
+    .cash-kpi--buffer-green .cash-kpi__signal-dot,
+    .cash-kpi--signal-green .cash-kpi__signal-dot {
+      background: #5eead4;
+      box-shadow: 0 0 12px rgba(94, 234, 212, 0.5);
+    }
+
+    .cash-kpi--accent .cash-kpi__value {
+      color: var(--cash-cyan);
+    }
+
+    .cash-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(360px, 0.85fr);
+      gap: 16px;
+    }
+
+    .cash-panel {
+      min-width: 0;
+      padding: 18px;
+    }
+
+    .cash-panel__head {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .cash-panel__title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .cash-panel__hint {
+      margin: 5px 0 0;
+      color: var(--cash-muted);
+      font-size: 12px;
+    }
+
+    .cash-toggle {
+      display: inline-grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      padding: 4px;
+      background: #111a2b;
+      border: 1px solid var(--cash-border);
+      border-radius: 999px;
+    }
+
+    .cash-toggle__button {
+      min-height: 30px;
+      padding: 0 11px;
+      color: var(--cash-muted);
+      cursor: pointer;
+      background: transparent;
+      border: 0;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .cash-toggle__button.is-cash-active {
+      color: #031015;
+      background: var(--cash-cyan);
+    }
+
+    .cash-toggle--wide {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .cash-bars {
+      display: grid;
+      gap: 10px;
+    }
+
+    .cash-bar {
+      display: grid;
+      grid-template-columns: minmax(120px, 180px) minmax(0, 1fr) 112px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .cash-bar__label {
+      overflow: hidden;
+      color: #cbd5e1;
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .cash-bar__track {
+      height: 25px;
+      overflow: hidden;
+      background: var(--cash-soft);
+      border-radius: 999px;
+    }
+
+    .cash-bar__fill {
+      display: block;
+      height: 100%;
+      min-width: 2px;
+      background: linear-gradient(90deg, var(--cash-cyan), var(--cash-teal));
+      border-radius: 999px;
+      box-shadow: 0 0 14px rgba(0, 217, 255, 0.18);
+    }
+
+    .cash-bar__fill--cyan {
+      background: var(--cash-cyan);
+    }
+
+    .cash-bar__fill--red {
+      background: var(--cash-red);
+      box-shadow: 0 0 14px rgba(251, 113, 133, 0.2);
+    }
+
+    .cash-bar__fill--purple {
+      background: var(--cash-purple);
+      box-shadow: 0 0 14px rgba(167, 139, 250, 0.2);
+    }
+
+    .cash-bar__value {
+      color: #d7e4f5;
+      font-size: 12px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .cash-bar--with-suffix {
+      grid-template-columns: minmax(120px, 180px) minmax(0, 1fr) 172px;
+    }
+
+    .cash-bar__amount {
+      display: block;
+      color: #ffffff;
+      font-weight: 900;
+    }
+
+    .cash-bar__suffix {
+      display: inline-flex;
+      justify-content: flex-end;
+      margin-top: 4px;
+      padding: 2px 8px;
+      color: #052133;
+      font-size: 11px;
+      font-weight: 900;
+      background: linear-gradient(180deg, #78dcff, var(--cash-cyan));
+      border-radius: 999px;
+    }
+
+    .cash-bar__suffix--negative {
+      color: #3a0810;
+      background: #ffb4be;
+    }
+
+    .cash-legend-row {
+      display: grid;
+      grid-template-columns: 14px minmax(120px, 1fr) 72px 120px;
+      gap: 10px;
+      align-items: center;
+      min-height: 32px;
+      padding: 8px 10px;
+      background: rgba(24, 34, 53, 0.56);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      border-radius: 12px;
+    }
+
+    .cash-legend-row__dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      box-shadow: 0 0 12px currentColor;
+    }
+
+    .cash-legend-row__label {
+      overflow: hidden;
+      color: #eef5ff;
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .cash-legend-row__percent {
+      color: var(--cash-cyan);
+      font-size: 12px;
+      font-weight: 900;
+      text-align: right;
+    }
+
+    .cash-legend-row__value {
+      color: var(--cash-muted);
+      font-size: 12px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .cash-line {
+      width: 100%;
+      height: 320px;
+      min-height: 0;
+      max-height: 320px;
+    }
+
+    .cash-line text {
+      fill: var(--cash-muted);
+      font-size: 11px;
+    }
+
+    .cash-line__axis {
+      stroke: rgba(148, 163, 184, 0.22);
+      stroke-width: 1;
+    }
+
+    .cash-line__path {
+      fill: none;
+      stroke: var(--cash-cyan);
+      stroke-width: 3;
+      filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.25));
+    }
+
+    .cash-line__area {
+      fill: rgba(0, 217, 255, 0.08);
+    }
+
+    .cash-line__grid {
+      stroke: rgba(148, 163, 184, 0.14);
+      stroke-width: 1;
+    }
+
+    .cash-line__point {
+      fill: #0b0f14;
+      stroke: var(--cash-cyan);
+      stroke-width: 3;
+    }
+
+    .cash-line__value {
+      fill: #eaf6ff;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .cash-balance {
+      display: grid;
+      gap: 9px;
+    }
+
+    .cash-balance__row {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr) 110px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .cash-balance__line {
+      position: relative;
+      height: 30px;
+      background: #111a2b;
+      border-radius: 999px;
+    }
+
+    .cash-balance__fill {
+      display: block;
+      height: 100%;
+      background: var(--cash-cyan);
+      border-radius: 999px;
+    }
+
+    .cash-balance__benchmark {
+      position: absolute;
+      top: -4px;
+      bottom: -4px;
+      width: 2px;
+      background: var(--cash-purple);
+    }
+
+    .cash-donut-wrap {
+      display: grid;
+      grid-template-columns: 230px minmax(0, 1fr);
+      gap: 22px;
+      align-items: center;
+    }
+
+    .cash-donut {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 180px;
+      height: 180px;
+      margin: 0 auto;
+      background:
+        radial-gradient(circle at center, #111827 0 48%, transparent 49%),
+        conic-gradient(#00d9ff 0deg, #2dd4bf 120deg, #a78bfa 240deg, #fb7185 360deg);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 50%;
+      box-shadow:
+        0 0 0 10px rgba(15, 23, 42, 0.55),
+        0 22px 48px rgba(0, 0, 0, 0.28),
+        inset 0 0 26px rgba(0, 217, 255, 0.08);
+    }
+
+    .cash-donut::before {
+      position: absolute;
+      inset: 28px;
+      content: "";
+      background: linear-gradient(180deg, #182235, #0f172a);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 50%;
+      box-shadow: inset 0 0 22px rgba(0, 0, 0, 0.32);
+    }
+
+    .cash-donut__center {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 4px;
+      max-width: 118px;
+      text-align: center;
+    }
+
+    .cash-donut__label {
+      color: var(--cash-dim);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .cash-donut__value {
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+    }
+
+    .cash-donut__mode {
+      color: var(--cash-cyan);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .cash-product-panel {
+      overflow: hidden;
+    }
+
+    .cash-product-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin: 16px 0;
+    }
+
+    .cash-product-toolbar {
+      display: grid;
+      grid-template-columns: minmax(240px, 360px) minmax(0, 1fr);
+      gap: 14px;
+      align-items: end;
+      margin: 14px 0 4px;
+      padding: 12px;
+      border: 1px solid rgba(125, 157, 202, 0.16);
+      border-radius: 18px;
+      background: rgba(16, 26, 47, 0.42);
+    }
+
+    .cash-product-field {
+      margin: 0;
+    }
+
+    .cash-product-toolbar__hint {
+      margin: 0;
+      color: var(--cash-muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .cash-product-summary__card {
+      padding: 13px 14px;
+      border: 1px solid rgba(125, 157, 202, 0.18);
+      border-radius: 18px;
+      background: rgba(26, 41, 68, 0.56);
+    }
+
+    .cash-product-summary__label {
+      display: block;
+      color: var(--cash-muted);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .cash-product-summary__value {
+      display: block;
+      margin-top: 7px;
+      color: #ffffff;
+      font-size: 20px;
+      line-height: 1.15;
+    }
+
+    .cash-product-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .cash-product-chart {
+      display: grid;
+      gap: 10px;
+    }
+
+    .cash-product-row {
+      display: grid;
+      grid-template-columns: minmax(180px, 0.45fr) minmax(180px, 1fr) 120px 74px;
+      gap: 12px;
+      align-items: center;
+      padding: 8px 0;
+    }
+
+    .cash-product-row__name {
+      min-width: 0;
+      color: #f5f8ff;
+      font-size: 13px;
+      font-weight: 800;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .cash-product-row__badge {
+      display: inline-flex;
+      align-items: center;
+      margin-left: 8px;
+      padding: 2px 7px;
+      border: 1px solid rgba(132, 231, 221, 0.45);
+      border-radius: 999px;
+      background: rgba(132, 231, 221, 0.14);
+      color: #8be7d8;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      vertical-align: middle;
+    }
+
+    .cash-product-row__bar {
+      position: relative;
+      height: 22px;
+      overflow: hidden;
+      border: 1px solid rgba(125, 157, 202, 0.18);
+      border-radius: 999px;
+      background: #1a2944;
+    }
+
+    .cash-product-row__fill {
+      display: block;
+      height: 100%;
+      min-width: 6px;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #55cfff, #70d8ca);
+      box-shadow: 0 0 10px rgba(39, 211, 255, 0.18);
+    }
+
+    .cash-product-row__value {
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 900;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .cash-product-row__percent {
+      display: inline-flex;
+      justify-content: center;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(126, 215, 202, 0.14);
+      color: var(--cash-cyan-soft);
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .cash-product-row--leader .cash-product-row__fill {
+      background: linear-gradient(90deg, #74d7ff, #8be7d8);
+      box-shadow: 0 0 14px rgba(39, 211, 255, 0.28);
+    }
+
+    .cash-product-row--leader .cash-product-row__name {
+      color: #ffffff;
+    }
+
+    .cash-product-insight {
+      min-height: 100%;
+      padding: 16px;
+      border: 1px solid rgba(125, 157, 202, 0.18);
+      border-radius: 20px;
+      background: rgba(16, 26, 47, 0.62);
+    }
+
+    .cash-product-insight__eyebrow {
+      margin: 0 0 8px;
+      color: var(--cash-cyan-soft);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .cash-product-insight__title {
+      margin: 0;
+      color: #ffffff;
+      font-size: 17px;
+      line-height: 1.25;
+    }
+
+    .cash-product-insight__text {
+      margin: 10px 0 0;
+      color: var(--cash-muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .cash-product-insight__list {
+      display: grid;
+      gap: 8px;
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .cash-product-insight__list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: rgba(26, 41, 68, 0.58);
+      color: #eaf2ff;
+      font-size: 12px;
+    }
+
+    .cash-matrix-wrap,
+    .cash-table-wrap {
+      max-height: 560px;
+      overflow: auto;
+      border: 1px solid var(--cash-border);
+      border-radius: 16px;
+    }
+
+    .cash-matrix,
+    .cash-table {
+      width: 100%;
+      min-width: 920px;
+      border-collapse: collapse;
+    }
+
+    .cash-matrix th,
+    .cash-matrix td,
+    .cash-table th,
+    .cash-table td {
+      padding: 11px;
+      font-size: 12px;
+      white-space: nowrap;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .cash-matrix th,
+    .cash-table th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      color: var(--cash-muted);
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: #111827;
+    }
+
+    .cash-matrix td:not(:first-child),
+    .cash-table td.cash-number {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .cash-matrix__cell {
+      cursor: pointer;
+    }
+
+    .cash-matrix__cell:hover {
+      color: var(--cash-cyan);
+      background: rgba(0, 217, 255, 0.08);
+    }
+
+    .cash-matrix__label {
+      text-align: left;
+    }
+
+    .cash-matrix__toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: inherit;
+      cursor: pointer;
+      background: transparent;
+      border: 0;
+      font: inherit;
+      font-weight: inherit;
+    }
+
+    .cash-matrix__caret {
+      display: inline-grid;
+      place-items: center;
+      width: 18px;
+      height: 18px;
+      color: #031015;
+      background: var(--cash-cyan);
+      border-radius: 999px;
+      transition: transform 160ms ease;
+    }
+
+    .cash-matrix__toggle.is-cash-collapsed .cash-matrix__caret {
+      transform: rotate(-90deg);
+    }
+
+    .cash-matrix__row.is-cash-hidden {
+      display: none;
+    }
+
+    .cash-matrix__row--level-1 td:first-child {
+      padding-left: 24px;
+    }
+
+    .cash-matrix__row--level-2 td:first-child {
+      padding-left: 42px;
+    }
+
+    .cash-matrix__row--level-3 td:first-child {
+      padding-left: 64px;
+      color: #dce8f7;
+    }
+
+    .cash-row-total {
+      font-weight: 800;
+      background: rgba(45, 212, 191, 0.07);
+    }
+
+    .cash-row-section,
+    .cash-row-opening {
+      color: var(--cash-cyan);
+      font-weight: 800;
+      background: rgba(0, 217, 255, 0.08);
+    }
+
+    .cash-validation {
+      display: grid;
+      gap: 9px;
+    }
+
+    .cash-diagnostics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .cash-diagnostic-card {
+      min-height: 118px;
+      padding: 14px;
+      border: 1px solid var(--cash-border);
+      border-radius: 16px;
+      background: rgba(19, 32, 56, 0.72);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .cash-diagnostic-card--green {
+      border-color: rgba(45, 212, 191, 0.42);
+    }
+
+    .cash-diagnostic-card--yellow {
+      border-color: rgba(251, 191, 36, 0.48);
+      background: rgba(60, 45, 16, 0.22);
+    }
+
+    .cash-diagnostic-card--red {
+      border-color: rgba(251, 113, 133, 0.52);
+      background: rgba(72, 24, 38, 0.24);
+    }
+
+    .cash-diagnostic-card__label {
+      margin: 0 0 8px;
+      color: var(--cash-muted);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .cash-diagnostic-card__value {
+      margin: 0;
+      color: #ffffff;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .cash-diagnostic-card__text {
+      margin: 8px 0 0;
+      color: var(--cash-text-soft);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .cash-diagnostic-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .cash-diagnostic-list__item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid rgba(109, 139, 181, 0.22);
+      border-radius: 13px;
+      background: rgba(21, 34, 58, 0.58);
+    }
+
+    .cash-diagnostic-list__title {
+      color: #f5f8ff;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .cash-diagnostic-list__meta {
+      margin-top: 3px;
+      color: var(--cash-muted);
+      font-size: 11px;
+    }
+
+    .cash-diagnostic-list__value {
+      color: var(--cash-cyan-soft);
+      font-size: 13px;
+      font-weight: 900;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .cash-validation__item {
+      padding: 12px;
+      background: var(--cash-soft);
+      border: 1px solid var(--cash-border);
+      border-radius: 13px;
+    }
+
+    .cash-validation__item--ok {
+      border-color: rgba(45, 212, 191, 0.35);
+    }
+
+    .cash-validation__item--warn {
+      border-color: rgba(251, 113, 133, 0.35);
+    }
+
+    .cash-empty {
+      padding: 18px;
+      color: var(--cash-muted);
+      text-align: center;
+      background: var(--cash-soft);
+      border: 1px dashed var(--cash-border);
+      border-radius: 14px;
+    }
+
+    .cash-warning {
+      display: none;
+      margin-top: 14px;
+      padding: 13px 14px;
+      color: #ffe4e8;
+      background: rgba(255, 127, 143, 0.12);
+      border: 1px solid rgba(255, 127, 143, 0.42);
+      border-radius: 14px;
+    }
+
+    .cash-warning.is-cash-visible {
+      display: block;
+    }
+
+    .cash-warning__title {
+      margin: 0;
+      color: #ffb7c0;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .cash-warning__text {
+      margin: 6px 0 0;
+      color: #f8cbd1;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .cash-warning--amber {
+      color: #fff3cf;
+      background: rgba(255, 209, 102, 0.12);
+      border-color: rgba(255, 209, 102, 0.44);
+    }
+
+    .cash-warning--amber .cash-warning__title {
+      color: #ffe29a;
+    }
+
+    .cash-warning--amber .cash-warning__text {
+      color: #fff1c6;
+    }
+
+    .cash-mobile-filter-toggle {
+      display: none;
+      width: 100%;
+      min-height: 44px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      color: #052133;
+      font-weight: 900;
+      background: linear-gradient(180deg, #78dcff, var(--cash-cyan));
+      border: 0;
+      border-radius: 13px;
+      box-shadow: 0 12px 26px rgba(39, 211, 255, 0.22);
+    }
+
+    .cash-help-button {
+      margin-top: 14px;
+    }
+
+    .cash-help-content {
+      display: grid;
+      gap: 18px;
+    }
+
+    .cash-help-section {
+      padding: 16px;
+      background: rgba(26, 41, 68, 0.58);
+      border: 1px solid rgba(125, 157, 202, 0.18);
+      border-radius: 16px;
+    }
+
+    .cash-help-section__title {
+      margin: 0 0 10px;
+      color: var(--cash-cyan-soft);
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .cash-help-section__text,
+    .cash-help-list {
+      margin: 0;
+      color: var(--cash-muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .cash-help-list {
+      display: grid;
+      gap: 8px;
+      padding-left: 20px;
+    }
+
+    .cash-help-table-wrap {
+      overflow: auto;
+      border: 1px solid rgba(125, 157, 202, 0.2);
+      border-radius: 14px;
+    }
+
+    .cash-help-table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+    }
+
+    .cash-help-table th,
+    .cash-help-table td {
+      padding: 11px 12px;
+      color: #edf6ff;
+      font-size: 12px;
+      line-height: 1.5;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid rgba(125, 157, 202, 0.16);
+    }
+
+    .cash-help-table th {
+      color: #c7d5ea;
+      font-weight: 900;
+      background: #182640;
+    }
+
+    .cash-help-table td {
+      background: rgba(16, 26, 47, 0.52);
+    }
+
+    .cash-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+      place-items: center;
+      padding: 22px;
+      background: rgba(2, 6, 23, 0.72);
+      backdrop-filter: blur(10px);
+    }
+
+    .cash-modal.is-cash-open {
+      display: grid;
+    }
+
+    .cash-modal__body {
+      width: min(980px, 100%);
+      max-height: 86vh;
+      padding: 18px;
+      overflow: auto;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.42);
+    }
+
+    .cash-modal__head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .cash-balance .cash-balance__row {
+      grid-template-columns: 150px minmax(0, 1fr) 130px;
+      gap: 14px;
+    }
+
+    .cash-balance .cash-balance__line {
+      position: relative;
+      height: 36px;
+      overflow: hidden;
+      background: #0a1220;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 999px;
+      box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.36);
+    }
+
+    .cash-balance .cash-balance__fill {
+      display: block;
+      height: 100%;
+      min-width: 4px;
+      background: linear-gradient(90deg, #00d9ff, #2dd4bf);
+      border-radius: 999px;
+      box-shadow: 0 0 18px rgba(0, 217, 255, 0.3);
+    }
+
+    .cash-balance .cash-balance__benchmark {
+      position: absolute;
+      top: -4px;
+      bottom: -4px;
+      width: 3px;
+      background: #facc15;
+      box-shadow: 0 0 16px rgba(250, 204, 21, 0.46);
+    }
+
+    .cash-balance__inside {
+      position: absolute;
+      top: 50%;
+      left: 14px;
+      z-index: 1;
+      color: #031015;
+      font-size: 12px;
+      font-weight: 900;
+      transform: translateY(-50%);
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
+    }
+
+    .cash-page {
+      color: var(--cash-text);
+    }
+
+    .cash-hero,
+    .cash-panel,
+    .cash-kpi,
+    .cash-modal__body {
+      background:
+        radial-gradient(circle at 100% 0%, rgba(39, 211, 255, 0.06), transparent 28%),
+        linear-gradient(180deg, rgba(22, 35, 61, 0.98), rgba(14, 24, 44, 0.96));
+      border-color: var(--cash-border);
+      box-shadow: 0 18px 46px rgba(5, 12, 28, 0.22);
+    }
+
+    .cash-hero {
+      background:
+        linear-gradient(180deg, rgba(19, 32, 56, 0.98), rgba(13, 22, 40, 0.98));
+    }
+
+    .cash-title,
+    .cash-panel__title,
+    .cash-kpi__value {
+      color: #ffffff;
+      text-shadow: 0 1px 0 rgba(0, 0, 0, 0.18);
+    }
+
+    .cash-eyebrow,
+    .cash-kpi--accent .cash-kpi__value,
+    .cash-status__value {
+      color: var(--cash-cyan-soft);
+    }
+
+    .cash-text,
+    .cash-panel__hint,
+    .cash-kpi__note {
+      color: var(--cash-muted);
+    }
+
+    .cash-filters {
+      background: rgba(20, 33, 58, 0.94);
+      border-color: var(--cash-border);
+    }
+
+    .cash-field__label {
+      color: #c8d6ea;
+    }
+
+    .cash-field__control {
+      color: #ffffff;
+      background: var(--cash-field);
+      border-color: rgba(125, 157, 202, 0.46);
+    }
+
+    .cash-field__control:focus {
+      border-color: rgba(39, 211, 255, 0.62);
+      box-shadow: 0 0 0 4px rgba(39, 211, 255, 0.12);
+    }
+
+    .cash-field__control option {
+      color: #ffffff;
+      background: #1d2f4d;
+    }
+
+    .cash-button,
+    .cash-toggle__button.is-cash-active {
+      color: #052133;
+      background: linear-gradient(180deg, #78dcff, var(--cash-cyan));
+      box-shadow: 0 12px 26px rgba(39, 211, 255, 0.24);
+    }
+
+    .cash-button--ghost {
+      color: #d8e4f4;
+      background: rgba(26, 41, 68, 0.86);
+      border-color: var(--cash-border);
+      box-shadow: none;
+    }
+
+    .cash-toggle {
+      background: rgba(16, 26, 47, 0.92);
+      border-color: var(--cash-border);
+    }
+
+    .cash-toggle__button {
+      color: #c2d0e6;
+    }
+
+    .cash-bar__label,
+    .cash-bar__value {
+      color: #dce8f7;
+    }
+
+    .cash-bar__track,
+    .cash-balance .cash-balance__line {
+      background: #22324f;
+      border: 1px solid rgba(125, 157, 202, 0.18);
+      box-shadow: inset 0 0 16px rgba(4, 10, 22, 0.24);
+    }
+
+    .cash-bar__fill,
+    .cash-balance .cash-balance__fill {
+      background: linear-gradient(90deg, #2dc7ff, #36d6c2);
+      box-shadow: 0 0 14px rgba(39, 211, 255, 0.2);
+    }
+
+    .cash-bar__fill--red {
+      background: #ff8a98;
+      box-shadow: 0 0 14px rgba(255, 127, 143, 0.2);
+    }
+
+    .cash-bar__fill--purple {
+      background: #9ea8ff;
+      box-shadow: 0 0 14px rgba(158, 168, 255, 0.2);
+    }
+
+    .cash-balance .cash-balance__benchmark {
+      background: var(--cash-gold);
+      box-shadow: 0 0 16px rgba(255, 209, 102, 0.4);
+    }
+
+    .cash-donut {
+      box-shadow:
+        0 0 0 10px rgba(16, 26, 47, 0.72),
+        0 22px 48px rgba(5, 12, 28, 0.28),
+        inset 0 0 26px rgba(39, 211, 255, 0.08);
+    }
+
+    .cash-donut::before {
+      background: linear-gradient(180deg, #1a2944, #101a2f);
+      border-color: rgba(125, 157, 202, 0.22);
+    }
+
+    .cash-legend-row {
+      background: rgba(26, 41, 68, 0.64);
+      border-color: rgba(125, 157, 202, 0.18);
+    }
+
+    .cash-legend-row__label {
+      color: #f0f6ff;
+    }
+
+    .cash-legend-row__percent {
+      color: var(--cash-cyan-soft);
+    }
+
+    .cash-matrix th,
+    .cash-table th {
+      background: #182640;
+      color: #c7d5ea;
+    }
+
+    .cash-matrix td,
+    .cash-table td {
+      color: #eef5ff;
+    }
+
+    .cash-row-section,
+    .cash-row-opening {
+      color: #7de4ff;
+      background: rgba(39, 211, 255, 0.1);
+    }
+
+    .cash-row-total {
+      background: rgba(54, 214, 194, 0.08);
+    }
+
+    .cash-matrix__cell:hover {
+      color: #ffffff;
+      background: rgba(39, 211, 255, 0.14);
+    }
+
+    .cash-matrix__caret {
+      color: #052133;
+      background: linear-gradient(180deg, #78dcff, var(--cash-cyan));
+    }
+
+    .cash-bar__track {
+      width: 100%;
+      max-width: 880px;
+    }
+
+    .cash-bar--with-suffix .cash-bar__track {
+      max-width: 760px;
+    }
+
+    .cash-balance .cash-balance__line {
+      width: 100%;
+      max-width: 1320px;
+    }
+
+    .cash-balance__row {
+      grid-template-columns: 150px minmax(420px, 1320px) 130px;
+    }
+
+    .cash-page .cash-balance__row {
+      grid-template-columns: 150px minmax(360px, 1120px) 130px;
+      gap: 12px;
+      min-height: 34px;
+    }
+
+    .cash-page .cash-balance .cash-balance__line {
+      height: 22px;
+      background: #1a2944;
+      border-color: rgba(125, 157, 202, 0.24);
+      box-shadow: inset 0 0 12px rgba(4, 10, 22, 0.22);
+    }
+
+    .cash-page .cash-balance .cash-balance__fill {
+      background: linear-gradient(90deg, #55cfff, #70d8ca);
+      box-shadow: 0 0 8px rgba(39, 211, 255, 0.16);
+    }
+
+    .cash-page .cash-balance .cash-balance__benchmark {
+      top: -5px;
+      bottom: -5px;
+      width: 2px;
+      background: var(--cash-gold);
+      box-shadow: 0 0 10px rgba(255, 209, 102, 0.36);
+    }
+
+    .cash-page .cash-balance__inside {
+      left: 10px;
+      color: #082033;
+      font-size: 10px;
+      font-weight: 900;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.22);
+    }
+
+    .cash-page .cash-hero {
+      padding: 16px 18px;
+    }
+
+    .cash-page .cash-title {
+      font-size: 24px;
+    }
+
+    .cash-page .cash-text {
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    .cash-page .cash-status {
+      padding: 12px 14px;
+    }
+
+    .cash-page .cash-kpis {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .cash-page .cash-kpi {
+      min-height: 112px;
+      padding: 14px;
+    }
+
+    .cash-page .cash-kpi__value {
+      font-size: 21px;
+    }
+
+    @media (max-width: 1180px) {
+      .cash-page {
+        gap: 14px;
+      }
+
+      .cash-hero {
+        grid-template-columns: 1fr;
+        padding: 14px;
+      }
+
+      .cash-status {
+        width: 100%;
+        min-height: auto;
+      }
+
+      .cash-filters {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .cash-page .cash-kpis {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .cash-page .cash-kpi {
+        min-height: 96px;
+        padding: 12px;
+      }
+
+      .cash-page .cash-kpi__value {
+        font-size: 19px;
+      }
+
+      .cash-page .cash-kpi__note {
+        font-size: 11px;
+      }
+
+      .cash-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .cash-product-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .cash-product-toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .cash-product-row {
+        grid-template-columns: minmax(140px, 220px) minmax(0, 1fr) 120px 72px;
+      }
+
+      .cash-bar {
+        grid-template-columns: minmax(140px, 220px) minmax(0, 1fr) 128px;
+      }
+
+      .cash-bar--with-suffix {
+        grid-template-columns: minmax(140px, 220px) minmax(0, 1fr) 150px;
+      }
+
+      .cash-balance__row,
+      .cash-page .cash-balance__row {
+        grid-template-columns: 140px minmax(0, 1fr) 120px;
+      }
+
+      .cash-bar__track,
+      .cash-bar--with-suffix .cash-bar__track,
+      .cash-balance .cash-balance__line {
+        max-width: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .cash-hero,
+      .cash-layout,
+      .cash-donut-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .cash-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .cash-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .cash-diagnostics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .cash-page .cash-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .cash-hero {
+        gap: 12px;
+      }
+
+      .cash-status {
+        min-height: auto;
+      }
+
+      .cash-panel__head {
+        display: grid;
+      }
+
+      .cash-product-summary {
+        grid-template-columns: 1fr;
+      }
+
+      .cash-product-row {
+        grid-template-columns: 1fr;
+        gap: 7px;
+        padding: 10px 0;
+      }
+
+      .cash-product-row__value,
+      .cash-product-row__percent {
+        justify-self: start;
+        text-align: left;
+      }
+
+      .cash-toggle,
+      .cash-toggle--wide {
+        width: 100%;
+      }
+
+      .cash-matrix-wrap,
+      .cash-table-wrap {
+        max-height: 430px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .cash-matrix th:first-child,
+      .cash-matrix td:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        min-width: 220px;
+        background: #182640;
+      }
+
+      .cash-bar__track,
+      .cash-bar--with-suffix .cash-bar__track,
+      .cash-balance .cash-balance__line {
+        max-width: none;
+      }
+
+      .cash-balance__row {
+        grid-template-columns: 140px minmax(0, 1fr) 120px;
+      }
+
+      .cash-page .cash-balance__row {
+        grid-template-columns: 140px minmax(0, 1fr) 120px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .cash-page {
+        gap: 14px;
+      }
+
+      .cash-page .cash-hero {
+        padding: 14px;
+      }
+
+      .cash-page .cash-title {
+        font-size: 20px;
+      }
+
+      .cash-page .cash-text {
+        font-size: 12px;
+      }
+
+      .cash-filters,
+      .cash-kpis {
+        grid-template-columns: 1fr;
+      }
+
+      .cash-diagnostics,
+      .cash-diagnostic-list__item {
+        grid-template-columns: 1fr;
+      }
+
+      .cash-diagnostic-list__value {
+        text-align: left;
+      }
+
+      .cash-mobile-filter-toggle {
+        display: flex;
+      }
+
+      .cash-filters {
+        padding: 12px;
+      }
+
+      .cash-filters .cash-field,
+      .cash-filters .cash-actions {
+        display: none;
+      }
+
+      .cash-filters.is-cash-open .cash-field {
+        display: grid;
+      }
+
+      .cash-filters.is-cash-open .cash-actions {
+        display: flex;
+      }
+
+      .cash-page .cash-kpis {
+        grid-template-columns: 1fr;
+      }
+
+      .cash-kpi {
+        min-height: auto;
+      }
+
+      .cash-layout {
+        gap: 14px;
+      }
+
+      .cash-panel {
+        padding: 14px;
+      }
+
+      .cash-panel__title {
+        font-size: 15px;
+      }
+
+      .cash-toggle,
+      .cash-toggle--wide {
+        grid-template-columns: 1fr;
+        border-radius: 14px;
+      }
+
+      .cash-toggle__button {
+        min-height: 38px;
+      }
+
+      .cash-donut-wrap {
+        justify-items: center;
+      }
+
+      .cash-donut {
+        width: 160px;
+        height: 160px;
+      }
+
+      .cash-legend-row {
+        grid-template-columns: 12px minmax(0, 1fr) 58px;
+      }
+
+      .cash-legend-row__value {
+        grid-column: 2 / -1;
+        text-align: left;
+      }
+
+      .cash-bar,
+      .cash-balance__row {
+        grid-template-columns: 1fr;
+      }
+
+      .cash-bar__value {
+        text-align: left;
+      }
+
+      .cash-line {
+        height: 220px;
+        max-height: 220px;
+      }
+
+      .cash-matrix,
+      .cash-table {
+        min-width: 760px;
+      }
+    }
+  </style>
+
+  <div class="cash-hero">
+    <div>
+      <p class="cash-eyebrow">ОДДС · учебный год</p>
+      <h3 class="cash-title">Деньги: текущая, инвестиционная и финансовая деятельность</h3>
+      <p class="cash-text">
+        Модель строится от фиксированного баланса 4 311 060,98 ₽ на 01.09.2025,
+        исключает внутренние перемещения и раскладывает потоки по трем разделам ОДДС.
+      </p>
+      <button class="cash-button cash-button--ghost cash-help-button" id="cash-owner-help-open" type="button">
+        ❓ Как читать дашборд
+      </button>
+    </div>
+
+    <div class="cash-status">
+      <p class="cash-status__label">Статус</p>
+      <p class="cash-status__value" id="cash-status-value">Загрузка…</p>
+      <p class="cash-status__label" id="cash-status-note">Инициализация модели</p>
+      <p class="cash-status__label" id="cash-current-date">Дата просмотра: —</p>
+    </div>
+  </div>
+
+  <div class="cash-filters" id="cash-filter-panel">
+    <button class="cash-mobile-filter-toggle" id="cash-mobile-filter-toggle" type="button">
+      Фильтры отчёта
+      <span id="cash-mobile-filter-state">Показать</span>
+    </button>
+
+    <label class="cash-field" for="cash-filter-date-from">
+      <span class="cash-field__label">Период с</span>
+      <input class="cash-field__control" id="cash-filter-date-from" type="date">
+    </label>
+
+    <label class="cash-field" for="cash-filter-date-to">
+      <span class="cash-field__label">Период по</span>
+      <input class="cash-field__control" id="cash-filter-date-to" type="date">
+    </label>
+
+    <label class="cash-field" for="cash-filter-direction">
+      <span class="cash-field__label">Направление</span>
+      <select class="cash-field__control" id="cash-filter-direction"></select>
+    </label>
+
+    <label class="cash-field" for="cash-filter-cfo">
+      <span class="cash-field__label">ЦФО</span>
+      <select class="cash-field__control" id="cash-filter-cfo"></select>
+    </label>
+
+    <label class="cash-field" for="cash-filter-parent">
+      <span class="cash-field__label">Статья ДДС.Родитель</span>
+      <select class="cash-field__control" id="cash-filter-parent"></select>
+    </label>
+
+    <label class="cash-field" for="cash-filter-article">
+      <span class="cash-field__label">Статья ДДС</span>
+      <select class="cash-field__control" id="cash-filter-article"></select>
+    </label>
+
+    <div class="cash-actions">
+      <button class="cash-button" id="cash-button-refresh" type="button">Обновить</button>
+      <button class="cash-button cash-button--ghost" id="cash-button-reset" type="button">Сбросить</button>
+    </div>
+  </div>
+
+  <div class="cash-kpis">
+    <article class="cash-kpi cash-kpi--accent" id="cash-kpi-ncf-card">
+      <p class="cash-kpi__label">Общий ЧДП периода</p>
+      <p class="cash-kpi__value" id="cash-kpi-ncf">—</p>
+      <p class="cash-kpi__signal" id="cash-kpi-ncf-signal">
+        <span class="cash-kpi__signal-dot"></span>
+        <span id="cash-kpi-ncf-status">Нет данных</span>
+      </p>
+      <p class="cash-kpi__note">Сумма ЧДП трех разделов ОДДС</p>
+    </article>
+
+    <article class="cash-kpi" id="cash-kpi-buffer-card">
+      <p class="cash-kpi__label">Cash Buffer</p>
+      <p class="cash-kpi__value" id="cash-kpi-buffer">—</p>
+      <p class="cash-kpi__signal" id="cash-kpi-buffer-signal">
+        <span class="cash-kpi__signal-dot"></span>
+        <span id="cash-kpi-buffer-status">Нет данных</span>
+      </p>
+      <p class="cash-kpi__note" id="cash-kpi-buffer-note">Остаток / платежи текущей деятельности</p>
+    </article>
+
+    <article class="cash-kpi">
+      <p class="cash-kpi__label">Поступления</p>
+      <p class="cash-kpi__value" id="cash-kpi-inflow">—</p>
+      <p class="cash-kpi__note">Режим денежных поступлений для диаграммы ЦФО</p>
+    </article>
+
+    <article class="cash-kpi">
+      <p class="cash-kpi__label">Выплаты</p>
+      <p class="cash-kpi__value" id="cash-kpi-outflow">—</p>
+      <p class="cash-kpi__note">Режим «Затраты/расходы»</p>
+    </article>
+
+    <article
+      class="cash-kpi"
+      title="Коэффициент авансирования = поступления по «Основное образование» / выплаты по «ФОТ» + «Аренда». Значение > 1.0 означает риск траты денег будущих периодов."
+    >
+      <p class="cash-kpi__label">Коэффициент авансирования</p>
+      <p class="cash-kpi__value" id="cash-kpi-advance-ratio">—</p>
+      <p class="cash-kpi__signal" id="cash-kpi-advance-signal">
+        <span class="cash-kpi__signal-dot"></span>
+        <span id="cash-kpi-advance-status">Нет данных</span>
+      </p>
+      <p class="cash-kpi__note" id="cash-kpi-advance-note">Защита от ложной ликвидности</p>
+    </article>
+
+    <article
+      class="cash-kpi cash-kpi--accent"
+      title="Направленная маржинальность = NCF направления / поступления направления × 100%. При выборе направления карточка пересчитывается по выбранной локации."
+    >
+      <p class="cash-kpi__label">Маржинальность ДП</p>
+      <p class="cash-kpi__value" id="cash-kpi-direction-margin">—</p>
+      <p class="cash-kpi__signal" id="cash-kpi-margin-signal">
+        <span class="cash-kpi__signal-dot"></span>
+        <span id="cash-kpi-margin-status">Нет данных</span>
+      </p>
+      <p class="cash-kpi__note" id="cash-kpi-direction-margin-note">По текущему срезу</p>
+    </article>
+  </div>
+
+  <div class="cash-warning cash-warning--amber" id="cash-unclear-warning">
+    <p class="cash-warning__title">⚠ Требуется разбор статьи «Выяснить»</p>
+    <p class="cash-warning__text" id="cash-unclear-warning-text"></p>
+  </div>
+
+  <div class="cash-warning" id="cash-internal-transfer-warning">
+    <p class="cash-warning__title">⚠ Внутренние перемещения не сошлись</p>
+    <p class="cash-warning__text" id="cash-internal-transfer-warning-text"></p>
+  </div>
+
+  <div class="cash-warning" id="cash-source-reconciliation-warning">
+    <p class="cash-warning__title">⚠ Итог листа «Деньги» не совпал с ОДДС</p>
+    <p class="cash-warning__text" id="cash-source-reconciliation-warning-text"></p>
+  </div>
+
+  <div class="cash-layout">
+    <article class="cash-panel">
+      <div class="cash-panel__head">
+        <div>
+          <h4 class="cash-panel__title">Зависимость от ЦФО</h4>
+          <p class="cash-panel__hint">Столбцы свыше 30% общего объёма подсвечиваются красным.</p>
+        </div>
+
+        <div class="cash-toggle">
+          <button class="cash-toggle__button is-cash-active" id="cash-toggle-inflow" type="button">Поступления</button>
+          <button class="cash-toggle__button" id="cash-toggle-outflow" type="button">Выплаты</button>
+        </div>
+      </div>
+
+      <div class="cash-bars" id="cash-cfo-chart"></div>
+      <div class="cash-warning" id="cash-cfo-unallocated-warning">
+        <p class="cash-warning__title">⚠ Красный флаг: ЦФО «Не распределено»</p>
+        <p class="cash-warning__text" id="cash-cfo-unallocated-warning-text"></p>
+      </div>
+    </article>
+
+    <article class="cash-panel">
+      <div class="cash-panel__head">
+        <div>
+          <h4 class="cash-panel__title">ЧДП по направлениям</h4>
+          <p class="cash-panel__hint">Филиалы с плюсом генерируют ликвидность, с минусом — потребляют.</p>
+        </div>
+      </div>
+
+      <div class="cash-bars" id="cash-direction-chart"></div>
+    </article>
+  </div>
+
+  <div class="cash-layout">
+    <article class="cash-panel">
+      <div class="cash-panel__head">
+        <div>
+          <h4 class="cash-panel__title">Общий ЧДП по месяцам</h4>
+          <p class="cash-panel__hint">Сентябрь → август по номеру месяца учебного года.</p>
+        </div>
+      </div>
+
+      <div id="cash-monthly-line"></div>
+    </article>
+
+    <article class="cash-panel">
+      <div class="cash-panel__head">
+        <div>
+          <h4 class="cash-panel__title">Структура расходов</h4>
+          <p class="cash-panel__hint">Проценты и суммы перестраиваются по выбранному срезу.</p>
+        </div>
+
+        <div class="cash-toggle cash-toggle--wide">
+          <button class="cash-toggle__button is-cash-active" id="cash-expense-mode-category" type="button">Категории</button>
+          <button class="cash-toggle__button" id="cash-expense-mode-direction" type="button">Направления</button>
+          <button class="cash-toggle__button" id="cash-expense-mode-cfo" type="button">ЦФО</button>
+        </div>
+      </div>
+
+      <div class="cash-donut-wrap">
+        <div class="cash-donut" id="cash-expense-donut">
+          <div class="cash-donut__center">
+            <span class="cash-donut__label">Расходы</span>
+            <span class="cash-donut__value" id="cash-expense-total">—</span>
+            <span class="cash-donut__mode" id="cash-expense-mode-label">Категории</span>
+          </div>
+        </div>
+        <div class="cash-bars" id="cash-expense-legend"></div>
+      </div>
+    </article>
+  </div>
+
+  <article class="cash-panel">
+    <div class="cash-panel__head">
+      <div>
+        <h4 class="cash-panel__title">Динамика остатков на счетах</h4>
+        <p class="cash-panel__hint">Столбцы — входящий остаток, жёлтый маркер — средний ФОТ.</p>
+      </div>
+    </div>
+
+    <div class="cash-balance" id="cash-balance-chart"></div>
+    <div class="cash-warning cash-warning--amber" id="cash-balance-fot-warning">
+      <p class="cash-warning__title">⚠ Остаток приближается к ФОТ</p>
+      <p class="cash-warning__text" id="cash-balance-fot-warning-text"></p>
+    </div>
+  </article>
+
+  <article class="cash-panel cash-product-panel">
+    <div class="cash-panel__head">
+      <div>
+        <h4 class="cash-panel__title">Денежные поступления по продуктовым линейкам</h4>
+        <p class="cash-panel__hint">Движение денег по линейкам и продуктам: каждая «Статья ДДС» внутри поступлений считается продуктом.</p>
+      </div>
+
+      <div class="cash-toggle cash-toggle--wide">
+        <button class="cash-toggle__button is-cash-active" id="cash-product-mode-line" type="button">Линейки</button>
+        <button class="cash-toggle__button" id="cash-product-mode-product" type="button">Продукты</button>
+      </div>
+    </div>
+
+    <div class="cash-product-toolbar">
+      <label class="cash-field cash-product-field" for="cash-product-line-select">
+        <span class="cash-field__label">Продуктовая линейка</span>
+        <select class="cash-field__control" id="cash-product-line-select"></select>
+      </label>
+      <p class="cash-product-toolbar__hint" id="cash-product-line-note">
+        Выберите линейку, чтобы увидеть продукты внутри неё: смены, группы, программы или услуги.
+      </p>
+    </div>
+
+    <div class="cash-product-summary">
+      <div class="cash-product-summary__card">
+        <span class="cash-product-summary__label">Поступления среза</span>
+        <strong class="cash-product-summary__value" id="cash-product-total">—</strong>
+      </div>
+      <div class="cash-product-summary__card">
+        <span class="cash-product-summary__label">Лидер</span>
+        <strong class="cash-product-summary__value" id="cash-product-leader">—</strong>
+      </div>
+      <div class="cash-product-summary__card">
+        <span class="cash-product-summary__label">Концентрация ТОП‑3</span>
+        <strong class="cash-product-summary__value" id="cash-product-top3">—</strong>
+      </div>
+    </div>
+
+    <div class="cash-product-grid">
+      <div class="cash-product-chart" id="cash-product-chart"></div>
+      <div class="cash-product-insight" id="cash-product-insight"></div>
+    </div>
+    <div class="cash-warning cash-warning--amber" id="cash-product-concentration-warning">
+      <p class="cash-warning__title">⚠ Концентрация денежных поступлений</p>
+      <p class="cash-warning__text" id="cash-product-concentration-warning-text"></p>
+    </div>
+  </article>
+
+  <article class="cash-panel">
+    <div class="cash-panel__head">
+      <div>
+        <h4 class="cash-panel__title">Интерактивная матрица ОДДС</h4>
+        <p class="cash-panel__hint">Двойной клик по сумме открывает транзакции. На телефоне таблицу можно листать вправо.</p>
+      </div>
+    </div>
+
+    <div class="cash-matrix-wrap">
+      <table class="cash-matrix" id="cash-matrix-table"></table>
+    </div>
+  </article>
+
+  <article class="cash-panel">
+    <div class="cash-panel__head">
+      <div>
+        <h4 class="cash-panel__title">Денежные риски месяца</h4>
+        <p class="cash-panel__hint">Короткая управленческая диагностика: платежный запас, сезонность, концентрация и отклонения.</p>
+      </div>
+    </div>
+
+    <div class="cash-diagnostics" id="cash-money-diagnostics"></div>
+    <div class="cash-diagnostic-list" id="cash-money-diagnostic-list"></div>
+  </article>
+
+  <article class="cash-panel">
+    <div class="cash-panel__head">
+      <div>
+        <h4 class="cash-panel__title">Валидация модели</h4>
+        <p class="cash-panel__hint">Контроль баланса, пустых полей и внутренних оборотов.</p>
+      </div>
+    </div>
+
+    <div class="cash-validation" id="cash-validation"></div>
+  </article>
+
+  <div class="cash-modal" id="cash-drill-modal" aria-hidden="true">
+    <div class="cash-modal__body">
+      <div class="cash-modal__head">
+        <div>
+          <h4 class="cash-panel__title" id="cash-drill-title">Детализация</h4>
+          <p class="cash-panel__hint" id="cash-drill-subtitle">Оригинальные транзакции</p>
+        </div>
+
+        <button class="cash-button cash-button--ghost" id="cash-drill-close" type="button">Закрыть</button>
+      </div>
+
+      <div class="cash-table-wrap">
+        <table class="cash-table">
+          <thead>
+            <tr>
+              <th>Дата</th>
+              <th>Регистратор</th>
+              <th>Результат</th>
+              <th>ЦФО</th>
+              <th>Комментарий</th>
+            </tr>
+          </thead>
+          <tbody id="cash-drill-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="cash-modal" id="cash-owner-help-modal" aria-hidden="true">
+    <div class="cash-modal__body">
+      <div class="cash-modal__head">
+        <div>
+          <h4 class="cash-panel__title">📑 ОДДС ШВО: Справочник управленческих метрик</h4>
+          <p class="cash-panel__hint">Краткий путеводитель по метрикам и графикам дашборда ДДС</p>
+        </div>
+
+        <button class="cash-button cash-button--ghost" id="cash-owner-help-close" type="button">Закрыть</button>
+      </div>
+
+      <div class="cash-help-content">
+        <section class="cash-help-section">
+          <h5 class="cash-help-section__title">💡 Как этот дашборд защищает ваш бизнес:</h5>
+          <ul class="cash-help-list">
+            <li>Защищает от ложной ликвидности: в начале учебного года приходят миллионы рублей авансов. Дашборд помогает не поддаться иллюзии богатства и не вывести эти деньги в дивиденды, так как они обеспечивают работу школы на месяцы вперед.</li>
+            <li>Предотвращает кассовые разрывы: система показывает запас автономности в днях, а летом требует усиленный резерв не менее 60 дней по постоянным расходам.</li>
+            <li>Подсвечивает неэффективность: вы сразу увидите, какая площадка работает вхолостую и какой поддерживающий отдел (АХО, кадры, администрация) забирает на себя слишком много ресурсов.</li>
+          </ul>
+        </section>
+
+        <section class="cash-help-section">
+          <h5 class="cash-help-section__title">ПРАВИЛО ПЕРВОГО ВЗГЛЯДА (Валидация)</h5>
+          <p class="cash-help-section__text">Перед анализом показателей прокрутите страницу в самый низ к блоку «Валидация модели».</p>
+          <p class="cash-help-section__text">Если там горит зеленая плашка Баланс: Passed — расчетный остаток на дашборде сошелся с выпиской из банка до копейки. Данным можно верить на 100%.</p>
+          <p class="cash-help-section__text">Если плашка красная — качество данных упало, решения принимать рано.</p>
+        </section>
+
+        <section class="cash-help-section">
+          <h5 class="cash-help-section__title">БЛОК 1. Экспресс-диагностика (KPI-карточки верхнего уровня)</h5>
+          <p class="cash-help-section__text">Эти 5 цифр показывают общее «здоровье» кассы школы и сада прямо сейчас.</p>
+          <div class="cash-help-table-wrap">
+            <table class="cash-help-table">
+              <thead>
+                <tr>
+                  <th>Показатель</th>
+                  <th>Норма для бизнеса</th>
+                  <th>О чем говорит цифра?</th>
+                  <th>Управленческое решение</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1. Остаток денежных средств</td>
+                  <td>Выше суммы ФОТ + аренды на 1 месяц.</td>
+                  <td>Общая сумма живых денег на всех счетах и в кассах школы.</td>
+                  <td>Если падает к критическому минимуму: замораживать необязательные расходы (ремонты, закупки оборудования).</td>
+                </tr>
+                <tr>
+                  <td>2. Общий ЧДП (Чистый денежный поток)</td>
+                  <td>Плюсовое значение (вне летнего сезона).</td>
+                  <td>Физический итог месяца: сколько денег пришло за вычетом того, сколько ушло.</td>
+                  <td>Если стабильно в минусе: проверять собираемость дебиторки с родителей и сокращать административные траты.</td>
+                </tr>
+                <tr>
+                  <td>3. Cash Buffer (Запас прочности)</td>
+                  <td>Обычный период: 30+ дней. Лето: 60+ дней.</td>
+                  <td>На сколько дней школе хватит текущих денег, если притоки от родителей полностью прекратятся. Летом расчет ориентируется на постоянные расходы.</td>
+                  <td>Обычный красный уровень — меньше 20 дней. Летний красный уровень — меньше 45 дней, потому что школа не работает, а постоянные расходы остаются.</td>
+                </tr>
+                <tr>
+                  <td>4. Коэффициент авансирования</td>
+                  <td>&gt; 1.0 — в начале года. ~ 1.0 — в середине года.</td>
+                  <td>Насколько касса наполнена предоплатами за будущие периоды. (При наведении курсора появится подсказка с текущим статусом).</td>
+                  <td>Если коэффициент высокий (например, 2.5): касса полная, но деньги еще не отработаны. Их нельзя выводить в дивиденды.</td>
+                </tr>
+                <tr>
+                  <td>5. Маржинальность ДП (по срезу)</td>
+                  <td>Зависит от филиала.</td>
+                  <td>Какая доля от пришедших на направление денег остается в компании, а не уходит сразу на его же расходы.</td>
+                  <td>Если маржинальность площадки падает: открывать графики и искать, какая статья затрат на этом филиале начала расти.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="cash-help-section">
+          <h5 class="cash-help-section__title">БЛОК 2. Сигналы тревоги и эффективность (Интерактивные графики)</h5>
+          <p class="cash-help-section__text">Этот блок помогает найти «черные дыры», куда утекают деньги.</p>
+          <div class="cash-help-table-wrap">
+            <table class="cash-help-table">
+              <thead>
+                <tr>
+                  <th>Элемент дашборда</th>
+                  <th>На что обратить внимание?</th>
+                  <th>Сигнал опасности (Красный флаг)</th>
+                  <th>Управленческое решение</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Диаграмма: Зависимость от ЦФО (с переключателем Поступления/Выплаты)</td>
+                  <td>Показывает, кто в школе генерирует поток, а кто его тратит.</td>
+                  <td>Столбец окрасился в светло-красный цвет (ЦФО забирает более 30% всего бюджета).</td>
+                  <td>Если красный цвет у АХО или Администрации: бэк-офис раздут. (При наведении на них посмотрите Коэффициент административной нагрузки).</td>
+                </tr>
+                <tr>
+                  <td>Предупреждение по ЦФО «Не распределено»</td>
+                  <td>Всплывает автоматически под диаграммой ЦФО.</td>
+                  <td>Появляется красный текст: сумма «Не распределено» превысила 5% от всех выплат.</td>
+                  <td>Качество учета упало, операционисты разносят банк «на глаз». Задача бухгалтерии: немедленно перераспределить эти затраты.</td>
+                </tr>
+                <tr>
+                  <td>Динамика остатков на счетах</td>
+                  <td>Столбцы (остаток месяца) сопоставляются с желтым маркером (средний ФОТ).</td>
+                  <td>Высота синего столбца опускается ниже или вплотную к желтому маркеру.</td>
+                  <td>В следующем месяце школе физически будет нечем платить зарплату педагогам. Нужно срочно привлекать финансирование.</td>
+                </tr>
+                <tr>
+                  <td>Structure расходов (Кольцевая диаграмма)</td>
+                  <td>Имеет тумблер: Категории / Направления / ЦФО.</td>
+                  <td>Рост доли одной из категорий или направлений в динамике.</td>
+                  <td>Переключайте тумблер, чтобы в один клик менять ракурс: оценивать расходы по статьям, по филиалам или до конкретной группы сада.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="cash-help-section">
+          <h5 class="cash-help-section__title">БЛОК 3. Как проверять детали (Интерактивная таблица и Drill-down)</h5>
+          <p class="cash-help-section__text">Если вы видите в таблице ОДДС или на графике подозрительную сумму (например, аномальный всплеск прочих расходов на филиале Азарово):</p>
+          <ul class="cash-help-list">
+            <li>Наведите курсор на эту ячейку и кликните по ней дважды (двойной клик).</li>
+            <li>Экран плавно закроется, и перед вами откроется всплывающее окно детализации.</li>
+            <li>Вы увидите полный список оригинальных банковских документов из 1С, которые сформировали эту сумму: точную дату, номер ордера, сумму и текстовый комментарий (на что конкретно ушли деньги).</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const cashState = {
+      facts: [],
+      directories: {},
+      months: [],
+      balances: [],
+      validation: null,
+      config: {
+        startBalance: 4311060.98,
+      },
+      mode: 'inflow',
+      expenseMode: 'category',
+      productMode: 'line',
+      productLine: 'all',
+      filters: {
+        dateFrom: '',
+        dateTo: '',
+        direction: 'all',
+        cfo: 'all',
+        articleParent: 'all',
+        article: 'all',
+      },
+    };
+
+    function cashInit() {
+      cashSetCurrentDate();
+      cashBindEvents();
+      cashLoadData();
+    }
+
+    function cashBindEvents() {
+      document.getElementById('cash-button-refresh').addEventListener('click', cashLoadData);
+      document.getElementById('cash-button-reset').addEventListener('click', cashResetFilters);
+      document.getElementById('cash-toggle-inflow').addEventListener('click', function cashClickInflow() {
+        cashSetMode('inflow');
+      });
+      document.getElementById('cash-toggle-outflow').addEventListener('click', function cashClickOutflow() {
+        cashSetMode('outflow');
+      });
+      document.getElementById('cash-expense-mode-category').addEventListener('click', function cashClickExpenseCategory() {
+        cashSetExpenseMode('category');
+      });
+      document.getElementById('cash-expense-mode-direction').addEventListener('click', function cashClickExpenseDirection() {
+        cashSetExpenseMode('direction');
+      });
+      document.getElementById('cash-expense-mode-cfo').addEventListener('click', function cashClickExpenseCfo() {
+        cashSetExpenseMode('cfo');
+      });
+      document.getElementById('cash-product-mode-line').addEventListener('click', function cashClickProductLine() {
+        cashSetProductMode('line');
+      });
+      document.getElementById('cash-product-mode-product').addEventListener('click', function cashClickProductProduct() {
+        cashSetProductMode('product');
+      });
+      document.getElementById('cash-product-line-select').addEventListener('change', cashHandleProductLineChange);
+      document.getElementById('cash-drill-close').addEventListener('click', cashCloseDrilldown);
+      document.getElementById('cash-mobile-filter-toggle').addEventListener('click', cashToggleMobileFilters);
+      document.getElementById('cash-owner-help-open').addEventListener('click', cashOpenOwnerHelp);
+      document.getElementById('cash-owner-help-close').addEventListener('click', cashCloseOwnerHelp);
+      document.getElementById('cash-drill-modal').addEventListener('click', cashHandleModalOverlayClick);
+      document.getElementById('cash-owner-help-modal').addEventListener('click', cashHandleModalOverlayClick);
+
+      [
+        'cash-filter-date-from',
+        'cash-filter-date-to',
+        'cash-filter-direction',
+        'cash-filter-cfo',
+        'cash-filter-parent',
+        'cash-filter-article',
+      ].forEach(function cashBindFilter(id) {
+        document.getElementById(id).addEventListener('change', cashHandleFilterChange);
+      });
+    }
+
+    function cashToggleMobileFilters() {
+      const panel = document.getElementById('cash-filter-panel');
+      const state = document.getElementById('cash-mobile-filter-state');
+      const isOpen = panel.classList.toggle('is-cash-open');
+
+      state.textContent = isOpen ? 'Скрыть' : 'Показать';
+    }
+
+    function cashLoadData() {
+      cashSetStatus('Загрузка…', 'Читаю лист «Деньги»');
+
+      google.script.run
+        .withSuccessHandler(cashHandleSuccess)
+        .withFailureHandler(cashHandleFailure)
+        .cashGetMoneyDashboardData({ limit: 20000 });
+    }
+
+    function cashHandleSuccess(response) {
+      if (!response || !response.success) {
+        cashHandleFailure(response && response.error ? response.error : new Error('Некорректный ответ сервера'));
+        return;
+      }
+
+      cashState.facts = response.data.facts || [];
+      cashState.directories = response.data.directories || {};
+      cashState.months = response.data.months || [];
+      cashState.balances = response.data.balances || [];
+      cashState.validation = response.data.validation || null;
+      cashState.config = response.data.config || cashState.config;
+
+      cashPopulateFilters();
+      cashRender();
+      cashSetStatus('Готово', 'Загружено транзакций: ' + cashFormatNumber(cashState.facts.length));
+    }
+
+    function cashHandleFailure(error) {
+      const message = error && error.message ? error.message : 'Не удалось загрузить модуль ДДС';
+      cashSetStatus('Ошибка', message);
+      cashRenderEmpty(message);
+    }
+
+    function cashPopulateFilters() {
+      cashFillSelect('cash-filter-direction', cashState.directories.directions || [], 'Все направления', 'direction', 'value', 'label');
+      cashRefreshCfoSelect();
+      cashFillSelect('cash-filter-parent', cashState.directories.articleParents || [], 'Все родительские статьи', 'articleParent', 'value', 'label');
+      cashRefreshArticleSelect();
+    }
+
+    function cashFillSelect(id, items, allLabel, filterKey, valueField, labelField) {
+      const select = document.getElementById(id);
+      const currentValue = cashState.filters[filterKey] || 'all';
+
+      select.innerHTML = '';
+      select.appendChild(cashCreateOption('all', allLabel));
+
+      items.forEach(function cashAppendOption(item) {
+        select.appendChild(cashCreateOption(String(item[valueField]), item[labelField]));
+      });
+
+      select.value = cashSelectHasValue(select, currentValue) ? currentValue : 'all';
+      cashState.filters[filterKey] = select.value;
+    }
+
+    function cashCreateOption(value, label) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      return option;
+    }
+
+    function cashSelectHasValue(select, value) {
+      return Array.prototype.some.call(select.options, function cashCheckOption(option) {
+        return option.value === value;
+      });
+    }
+
+    function cashRefreshCfoSelect() {
+      const items = (cashState.directories.cfo || []).filter(function cashFilterCfo(item) {
+        return cashState.filters.direction === 'all' || item.direction === cashState.filters.direction;
+      });
+
+      cashFillSelect('cash-filter-cfo', items, 'Все ЦФО', 'cfo', 'key', 'name');
+    }
+
+    function cashRefreshArticleSelect() {
+      const items = (cashState.directories.articles || []).filter(function cashFilterArticle(item) {
+        return cashState.filters.articleParent === 'all' || item.articleParent === cashState.filters.articleParent;
+      });
+
+      cashFillSelect('cash-filter-article', items, 'Все статьи', 'article', 'value', 'label');
+    }
+
+    function cashHandleFilterChange(event) {
+      cashReadFilters();
+
+      if (event && event.target && event.target.id === 'cash-filter-direction') {
+        cashState.filters.cfo = 'all';
+        cashRefreshCfoSelect();
+      }
+
+      if (event && event.target && event.target.id === 'cash-filter-parent') {
+        cashState.filters.article = 'all';
+        cashRefreshArticleSelect();
+      }
+
+      cashRender();
+    }
+
+    function cashReadFilters() {
+      cashState.filters.dateFrom = document.getElementById('cash-filter-date-from').value;
+      cashState.filters.dateTo = document.getElementById('cash-filter-date-to').value;
+      cashState.filters.direction = document.getElementById('cash-filter-direction').value;
+      cashState.filters.cfo = document.getElementById('cash-filter-cfo').value;
+      cashState.filters.articleParent = document.getElementById('cash-filter-parent').value;
+      cashState.filters.article = document.getElementById('cash-filter-article').value;
+    }
+
+    function cashResetFilters() {
+      cashState.filters = {
+        dateFrom: '',
+        dateTo: '',
+        direction: 'all',
+        cfo: 'all',
+        articleParent: 'all',
+        article: 'all',
+      };
+
+      document.getElementById('cash-filter-date-from').value = '';
+      document.getElementById('cash-filter-date-to').value = '';
+      cashPopulateFilters();
+      cashRender();
+    }
+
+    function cashSetMode(mode) {
+      cashState.mode = mode;
+      document.getElementById('cash-toggle-inflow').classList.toggle('is-cash-active', mode === 'inflow');
+      document.getElementById('cash-toggle-outflow').classList.toggle('is-cash-active', mode === 'outflow');
+      cashRenderCfoChart(cashGetFilteredFacts());
+    }
+
+    function cashSetExpenseMode(mode) {
+      cashState.expenseMode = mode;
+      document.getElementById('cash-expense-mode-category').classList.toggle('is-cash-active', mode === 'category');
+      document.getElementById('cash-expense-mode-direction').classList.toggle('is-cash-active', mode === 'direction');
+      document.getElementById('cash-expense-mode-cfo').classList.toggle('is-cash-active', mode === 'cfo');
+      cashRenderExpenseDonut(cashGetFilteredFacts());
+    }
+
+    function cashSetProductMode(mode) {
+      cashState.productMode = mode;
+      document.getElementById('cash-product-mode-line').classList.toggle('is-cash-active', mode === 'line');
+      document.getElementById('cash-product-mode-product').classList.toggle('is-cash-active', mode === 'product');
+      cashRenderProductLines(cashGetFilteredFacts());
+    }
+
+    function cashHandleProductLineChange() {
+      cashState.productLine = document.getElementById('cash-product-line-select').value || 'all';
+      cashState.productMode = 'product';
+      document.getElementById('cash-product-mode-line').classList.remove('is-cash-active');
+      document.getElementById('cash-product-mode-product').classList.add('is-cash-active');
+      cashRenderProductLines(cashGetFilteredFacts());
+    }
+
+    function cashGetExpenseModeLabel() {
+      if (cashState.expenseMode === 'direction') {
+        return 'Направления';
+      }
+
+      if (cashState.expenseMode === 'cfo') {
+        return 'ЦФО';
+      }
+
+      return 'Категории';
+    }
+
+    function cashGetFilteredFacts() {
+      const dateFrom = cashState.filters.dateFrom ? new Date(cashState.filters.dateFrom + 'T00:00:00') : null;
+      const dateTo = cashState.filters.dateTo ? new Date(cashState.filters.dateTo + 'T23:59:59') : null;
+
+      return cashState.facts.filter(function cashFilterFact(fact) {
+        const date = new Date(fact.operationDate + 'T00:00:00');
+
+        return (!dateFrom || date >= dateFrom)
+          && (!dateTo || date <= dateTo)
+          && (cashState.filters.direction === 'all' || fact.direction === cashState.filters.direction)
+          && (cashState.filters.cfo === 'all' || fact.cfoKey === cashState.filters.cfo)
+          && (cashState.filters.articleParent === 'all' || cashGetFactArticleParent(fact) === cashState.filters.articleParent)
+          && (cashState.filters.article === 'all' || fact.article === cashState.filters.article);
+      });
+    }
+
+    function cashGetBalanceBaseFacts() {
+      return cashState.facts.filter(function cashFilterBalanceFact(fact) {
+        return (cashState.filters.direction === 'all' || fact.direction === cashState.filters.direction)
+          && (cashState.filters.cfo === 'all' || fact.cfoKey === cashState.filters.cfo)
+          && (cashState.filters.articleParent === 'all' || cashGetFactArticleParent(fact) === cashState.filters.articleParent)
+          && (cashState.filters.article === 'all' || fact.article === cashState.filters.article);
+      });
+    }
+
+    function cashSumTurnoverBeforeMonth(facts, monthKey) {
+      const monthDate = new Date(monthKey + 'T00:00:00');
+      const startDate = new Date('2025-09-01T00:00:00');
+
+      return facts.reduce(function cashReducePriorTurnover(sum, fact) {
+        const date = new Date(fact.operationDate + 'T00:00:00');
+        return date >= startDate && date < monthDate ? sum + Number(fact.amount || 0) : sum;
+      }, 0);
+    }
+
+    function cashSumNcfBeforeMonth(facts, monthKey) {
+      const monthDate = new Date(monthKey + 'T00:00:00');
+      const startDate = new Date('2025-09-01T00:00:00');
+
+      return facts.reduce(function cashReducePriorNcf(sum, fact) {
+        const date = new Date(fact.operationDate + 'T00:00:00');
+        return date >= startDate && date < monthDate ? sum + Number(fact.cashFlowValue || 0) : sum;
+      }, 0);
+    }
+
+    function cashRender() {
+      const facts = cashGetFilteredFacts();
+      const months = cashBuildFilteredMonths(facts);
+      const balances = cashBuildClientBalances(facts, months);
+
+      cashRenderKpis(facts, balances);
+      cashRenderCfoChart(facts);
+      cashRenderDirectionChart(facts);
+      cashRenderMonthlyLine(facts, months);
+      cashRenderExpenseDonut(facts);
+      cashRenderProductLines(facts);
+      cashRenderBalanceChart(balances);
+      cashRenderMatrix(facts, months, balances);
+      cashRenderMoneyDiagnostics(facts, months, balances);
+      cashRenderUnclearWarning(facts);
+      cashRenderInternalTransferWarning();
+      cashRenderSourceReconciliationWarning();
+      cashRenderValidation();
+    }
+
+    function cashBuildFilteredMonths(facts) {
+      const registry = {};
+
+      facts.forEach(function cashCollectMonth(fact) {
+        if (!registry[fact.monthKey]) {
+          registry[fact.monthKey] = {
+            key: fact.monthKey,
+            label: fact.monthYearLabel,
+            schoolYear: fact.schoolYear,
+            schoolMonthNumber: Number(fact.schoolMonthNumber),
+          };
+        }
+      });
+
+      return Object.keys(registry)
+        .map(function cashMapMonth(key) {
+          return registry[key];
+        })
+        .sort(function cashSortMonth(a, b) {
+          if (a.schoolYear === b.schoolYear) {
+            return a.schoolMonthNumber - b.schoolMonthNumber;
+          }
+
+          return a.key.localeCompare(b.key);
+        });
+    }
+
+    function cashBuildClientBalances(facts, months) {
+      const balanceFacts = cashGetBalanceBaseFacts();
+      const fotByMonth = cashGroupNetPayment(facts.filter(cashIsFotPayment), 'monthKey');
+      const ncfByMonth = cashGroupSum(facts, 'monthKey', 'cashFlowValue');
+      const averageFot = months.length
+        ? months.reduce(function cashSumFot(sum, month) {
+          return sum + (fotByMonth[month.key] || 0);
+        }, 0) / months.length
+        : 0;
+
+      return months.map(function cashMapBalance(month) {
+        const openingBalance = cashRound(cashState.config.startBalance + cashSumNcfBeforeMonth(balanceFacts, month.key));
+        const turnover = cashRound(ncfByMonth[month.key] || 0);
+
+        return {
+          monthKey: month.key,
+          label: month.label,
+          openingBalance: openingBalance,
+          turnover: turnover,
+          closingBalance: cashRound(openingBalance + turnover),
+          expenseBenchmark: cashRound(averageFot),
+        };
+      });
+    }
+
+    function cashRenderKpis(facts, balances) {
+      const inflow = facts.reduce(function cashSumInflow(sum, fact) {
+        return sum + Number(fact.inflow || 0);
+      }, 0);
+      const outflow = facts.reduce(function cashSumOutflow(sum, fact) {
+        return sum + Number(fact.outflow || 0);
+      }, 0);
+      const ncf = facts.reduce(function cashSumNcf(sum, fact) {
+        return sum + Number(fact.cashFlowValue || 0);
+      }, 0);
+      const buffer = cashCalculateBuffer(facts, balances);
+      const advanceRatio = cashCalculateAdvanceRatio(facts);
+      const directionMargin = cashCalculateDirectionMargin(facts);
+
+      document.getElementById('cash-kpi-ncf').textContent = cashFormatCurrency(ncf);
+      document.getElementById('cash-kpi-buffer').textContent = buffer.days ? cashFormatNumber(buffer.days) + ' дн.' : '—';
+      document.getElementById('cash-kpi-buffer-note').textContent = buffer.label || 'Нет платежей текущей деятельности за 30 дней';
+      document.getElementById('cash-kpi-inflow').textContent = cashFormatCurrency(inflow);
+      document.getElementById('cash-kpi-outflow').textContent = cashFormatCurrency(outflow);
+      document.getElementById('cash-kpi-advance-ratio').textContent = advanceRatio.value === null ? '—' : cashFormatRatio(advanceRatio.value);
+      document.getElementById('cash-kpi-advance-note').textContent = advanceRatio.note;
+      document.getElementById('cash-kpi-direction-margin').textContent = directionMargin.value === null ? '—' : cashFormatPercent(directionMargin.value);
+      document.getElementById('cash-kpi-direction-margin-note').textContent = directionMargin.note;
+
+      cashApplyKpiSignal('cash-kpi-ncf-card', 'cash-kpi-ncf-status', cashGetNcfSignal(ncf, facts));
+      cashApplyKpiSignal('cash-kpi-buffer-card', 'cash-kpi-buffer-status', buffer.signal);
+      cashApplyKpiSignal('cash-kpi-advance-ratio', 'cash-kpi-advance-status', cashGetAdvanceSignal(advanceRatio.value, buffer.days));
+      cashApplyKpiSignal('cash-kpi-direction-margin', 'cash-kpi-margin-status', cashGetMarginSignal(directionMargin.value));
+    }
+
+    function cashCalculateAdvanceRatio(facts) {
+      const baseInflow = facts.reduce(function cashSumEducationInflow(sum, fact) {
+        return cashIsIncome(fact) && cashIsMainEducationArticle(fact.articleParent)
+          ? sum + Number(fact.inflow || 0)
+          : sum;
+      }, 0);
+      const obligations = facts.reduce(function cashSumHardObligations(sum, fact) {
+        return cashIsExpense(fact) && cashIsFotOrRentArticle(fact.articleParent, fact.article)
+          ? sum + Number(fact.outflow || 0)
+          : sum;
+      }, 0);
+      const value = cashSafeDivide(baseInflow, obligations);
+
+      return {
+        value: value,
+        note: value === null
+          ? 'Нет базы ФОТ + аренды'
+          : value > 1
+            ? 'Авансы превышают жёсткие обязательства'
+            : 'Авансовая подушка снижена',
+      };
+    }
+
+    function cashCalculateDirectionMargin(facts) {
+      const inflow = facts.reduce(function cashSumMarginInflow(sum, fact) {
+        return cashIsIncome(fact) ? sum + Number(fact.inflow || 0) : sum;
+      }, 0);
+      const outflow = facts.reduce(function cashSumMarginOutflow(sum, fact) {
+        return cashIsExpense(fact) ? sum + Number(fact.outflow || 0) : sum;
+      }, 0);
+      const margin = cashSafeDivide(inflow - outflow, inflow);
+
+      return {
+        value: margin === null ? null : margin * 100,
+        note: cashState.filters.direction === 'all'
+          ? 'Вся группа компаний'
+          : cashState.filters.direction,
+      };
+    }
+
+    function cashCalculateBuffer(facts, balances) {
+      if (!balances.length) {
+        return { days: 0, label: '', signal: cashSignal('neutral', 'Нет данных') };
+      }
+
+      const current = balances[balances.length - 1];
+      const currentDate = new Date(current.monthKey + 'T00:00:00');
+      const startDate = new Date(currentDate.getTime());
+      startDate.setDate(startDate.getDate() - 30);
+      const isSummer = cashIsSummerMonth(currentDate);
+
+      const expenses = facts.reduce(function cashSumPreviousExpense(sum, fact) {
+        const date = new Date(fact.operationDate + 'T00:00:00');
+        const expenseOk = isSummer ? cashIsFixedSummerPayment(fact) : cashIsOperatingPayment(fact);
+        return expenseOk && date >= startDate && date < currentDate
+          ? sum + cashPaymentAmount(fact)
+          : sum;
+      }, 0);
+      const averageDaily = Math.max(expenses, 0) / 30;
+      const days = averageDaily > 0 ? cashRound(current.openingBalance / averageDaily) : 0;
+      const signal = cashGetBufferSignal(days, currentDate);
+
+      return {
+        days: days,
+        label: 'Расчет для месяца: ' + current.label + '. ' + (isSummer ? 'Летний норматив: 60+ дней по постоянным расходам.' : 'Норматив: 30+ дней.'),
+        signal: signal,
+      };
+    }
+
+    function cashSignal(level, label) {
+      return { level: level, label: label };
+    }
+
+    function cashApplyKpiSignal(cardOrChildId, statusId, signal) {
+      const node = document.getElementById(cardOrChildId);
+      const card = node && node.classList.contains('cash-kpi') ? node : node ? node.closest('.cash-kpi') : null;
+      const status = document.getElementById(statusId);
+      const safeSignal = signal || cashSignal('neutral', 'Нет данных');
+
+      if (!card || !status) return;
+
+      card.classList.remove(
+        'cash-kpi--buffer-red',
+        'cash-kpi--buffer-yellow',
+        'cash-kpi--buffer-green',
+        'cash-kpi--signal-red',
+        'cash-kpi--signal-yellow',
+        'cash-kpi--signal-green'
+      );
+
+      if (safeSignal.level === 'red') {
+        card.classList.add(card.id === 'cash-kpi-buffer-card' ? 'cash-kpi--buffer-red' : 'cash-kpi--signal-red');
+      } else if (safeSignal.level === 'yellow') {
+        card.classList.add(card.id === 'cash-kpi-buffer-card' ? 'cash-kpi--buffer-yellow' : 'cash-kpi--signal-yellow');
+      } else if (safeSignal.level === 'green') {
+        card.classList.add(card.id === 'cash-kpi-buffer-card' ? 'cash-kpi--buffer-green' : 'cash-kpi--signal-green');
+      }
+
+      status.textContent = safeSignal.label;
+    }
+
+    function cashGetBufferSignal(days, monthDate) {
+      if (!days) return cashSignal('red', 'Нет запаса');
+
+      if (cashIsSummerMonth(monthDate)) {
+        if (days < 45) return cashSignal('red', 'Лето: критично');
+        if (days < 60) return cashSignal('yellow', 'Лето: на грани');
+        return cashSignal('green', 'Лето: запас 2 мес.');
+      }
+
+      if (days < 20) return cashSignal('red', 'Критично');
+      if (days < 30) return cashSignal('yellow', 'Нужно внимание');
+      if (days < 45) return cashSignal('green', 'Норма');
+      return cashSignal('green', 'Сильный запас');
+    }
+
+    function cashIsSummerMonth(date) {
+      const month = date.getMonth() + 1;
+      return month >= 6 && month <= 8;
+    }
+
+    function cashIsFixedSummerPayment(fact) {
+      if (!cashIsOperatingPayment(fact)) return false;
+
+      const text = cashNormalizeForSearch([
+        cashGetFactArticleParent(fact),
+        fact.originalArticleParent,
+        fact.articleParent,
+        fact.article,
+      ].join(' '));
+
+      return [
+        'фот',
+        'аренда',
+        'коммун',
+        'охрана',
+        'по/лиценз',
+        'лиценз',
+        'налог',
+        'взнос',
+        'комисси',
+        'обязательн',
+      ].some(function cashMatchFixedPayment(pattern) {
+        return text.indexOf(pattern) !== -1;
+      });
+    }
+
+    function cashGetNcfSignal(ncf, facts) {
+      if (ncf < 0) return cashSignal('red', 'ЧДП отрицательный');
+
+      const monthly = cashBuildMonthlyNcfEntries(facts);
+      const lastTwo = monthly.slice(-2);
+      const isTwoMonthMinus = lastTwo.length === 2 && lastTwo.every(function cashIsNegativeMonth(item) {
+        return item.value < 0;
+      });
+
+      if (isTwoMonthMinus) return cashSignal('red', 'Минус 2 месяца');
+      if (ncf === 0) return cashSignal('yellow', 'Нулевой поток');
+      return cashSignal('green', 'Плюсовой поток');
+    }
+
+    function cashBuildMonthlyNcfEntries(facts) {
+      const registry = {};
+
+      facts.forEach(function cashGroupMonthlyNcfFact(fact) {
+        if (!registry[fact.monthKey]) {
+          registry[fact.monthKey] = {
+            key: fact.monthKey,
+            label: fact.monthYearLabel,
+            value: 0,
+          };
+        }
+
+        registry[fact.monthKey].value += Number(fact.cashFlowValue || 0);
+      });
+
+      return Object.keys(registry).map(function cashMapMonthlyNcfEntry(key) {
+        registry[key].value = cashRound(registry[key].value);
+        return registry[key];
+      }).sort(function cashSortMonthlyNcfEntries(a, b) {
+        return a.key.localeCompare(b.key);
+      });
+    }
+
+    function cashGetAdvanceSignal(value, bufferDays) {
+      if (value === null) return cashSignal('neutral', 'Нет базы');
+      if (value > 1.5 && bufferDays < 30) return cashSignal('red', 'Риск авансов');
+      if (value > 1) return cashSignal('yellow', 'Авансы высокие');
+      return cashSignal('green', 'Риск ниже');
+    }
+
+    function cashGetMarginSignal(value) {
+      if (value === null) return cashSignal('neutral', 'Нет поступлений');
+      if (value < 15) return cashSignal('red', 'Опер. риск');
+      if (value < 30) return cashSignal('yellow', 'Здоровая зона');
+      return cashSignal('green', 'Высокая эффективность');
+    }
+
+    function cashRenderCfoChart(facts) {
+      const metric = cashState.mode === 'inflow' ? 'inflow' : 'outflow';
+      const source = facts.filter(function cashFilterMode(fact) {
+        return metric === 'inflow' ? cashIsIncome(fact) : cashIsExpense(fact);
+      });
+      const grouped = cashBuildCfoChartEntries(source, facts, metric);
+
+      cashRenderBars(
+        'cash-cfo-chart',
+        grouped.slice(0, 12),
+        { alertShare: 0.3, empty: 'Нет данных по ЦФО.' }
+      );
+      cashRenderUnallocatedCfoWarning(facts);
+    }
+
+    function cashRenderUnclearWarning(facts) {
+      const warning = document.getElementById('cash-unclear-warning');
+      const warningText = document.getElementById('cash-unclear-warning-text');
+      const unclearAmount = facts.reduce(function cashSumUnclear(sum, fact) {
+        return fact.isUnclear ? sum + Number(fact.cashFlowValue || 0) : sum;
+      }, 0);
+      const unclearIncome = facts.reduce(function cashSumUnclearIncome(sum, fact) {
+        return fact.isUnclear && Number(fact.cashFlowValue || 0) > 0
+          ? sum + Number(fact.cashFlowValue || 0)
+          : sum;
+      }, 0);
+      const unclearExpense = facts.reduce(function cashSumUnclearExpense(sum, fact) {
+        return fact.isUnclear && Number(fact.cashFlowValue || 0) < 0
+          ? sum + Math.abs(Number(fact.cashFlowValue || 0))
+          : sum;
+      }, 0);
+      const shouldShow = Math.abs(unclearAmount) > 0.01 || unclearIncome > 0.01 || unclearExpense > 0.01;
+
+      warning.classList.toggle('is-cash-visible', shouldShow);
+      warningText.textContent = shouldShow
+        ? 'Нетто-сумма операций с верхним уровнем «Выяснить»: '
+          + cashFormatCurrency(unclearAmount)
+          + '. Плюсовые суммы временно отнесены в «Прочие доходы» ('
+          + cashFormatCurrency(unclearIncome)
+          + '), минусовые — в платежи «Выяснить» ('
+          + cashFormatCurrency(unclearExpense)
+          + '). Требуется разнести по корректным статьям.'
+        : '';
+    }
+
+    function cashRenderInternalTransferWarning() {
+      const warning = document.getElementById('cash-internal-transfer-warning');
+      const warningText = document.getElementById('cash-internal-transfer-warning-text');
+      const internalFilter = cashState.validation && cashState.validation.internalFilter
+        ? cashState.validation.internalFilter
+        : null;
+      const netAmount = internalFilter ? Number(internalFilter.netAmount || 0) : 0;
+      const shouldShow = Math.abs(netAmount) >= 0.01;
+
+      warning.classList.toggle('is-cash-visible', shouldShow);
+      warningText.textContent = shouldShow
+        ? 'Нетто-сумма по внутренним перемещениям: '
+          + cashFormatCurrency(netAmount)
+          + '. Операции исключены из ОДДС, но требуется проверить полноту парных перемещений в базе.'
+        : '';
+    }
+
+    function cashRenderSourceReconciliationWarning() {
+      const warning = document.getElementById('cash-source-reconciliation-warning');
+      const warningText = document.getElementById('cash-source-reconciliation-warning-text');
+      const reconciliation = cashState.validation && cashState.validation.sourceReconciliation
+        ? cashState.validation.sourceReconciliation
+        : null;
+      const difference = reconciliation ? Number(reconciliation.difference || 0) : 0;
+      const shouldShow = reconciliation ? !reconciliation.isPassed : false;
+
+      warning.classList.toggle('is-cash-visible', shouldShow);
+      warningText.textContent = shouldShow
+        ? 'Расхождение между нетто-суммой листа «Деньги» и итогом ОДДС: '
+          + cashFormatCurrency(difference)
+          + '. Возможная причина: верхнеуровневая статья не классифицирована или операция попала не в тот раздел.'
+        : '';
+    }
+
+    function cashRenderDirectionChart(facts) {
+      const grouped = {};
+      const inflows = {};
+      const outflows = {};
+
+      facts.forEach(function cashCollectDirection(fact) {
+        grouped[fact.direction] = (grouped[fact.direction] || 0) + Number(fact.cashFlowValue || 0);
+
+        if (cashIsIncome(fact)) {
+          inflows[fact.direction] = (inflows[fact.direction] || 0) + Number(fact.inflow || 0);
+        }
+
+        if (cashIsExpense(fact)) {
+          outflows[fact.direction] = (outflows[fact.direction] || 0) + Number(fact.outflow || 0);
+        }
+      });
+
+      const entries = cashToSortedEntries(grouped).map(function cashAttachDirectionMargin(entry) {
+        const inflow = inflows[entry.label] || 0;
+        const outflow = outflows[entry.label] || 0;
+        const margin = cashSafeDivide(inflow - outflow, inflow);
+        const marginText = margin === null ? 'нет поступлений' : cashFormatPercent(margin * 100);
+
+        return {
+          label: entry.label,
+          value: entry.value,
+          suffix: margin === null ? 'маржа: —' : 'маржа: ' + marginText,
+          tooltip: entry.label
+            + ': ЧДП ' + cashFormatCurrency(entry.value)
+            + '\nНаправленная маржинальность: ' + marginText,
+        };
+      });
+
+      cashRenderBars('cash-direction-chart', entries, { empty: 'Нет данных по направлениям.' });
+    }
+
+    function cashBuildCfoChartEntries(source, allFilteredFacts, metric) {
+      const grouped = cashGroupSum(source, 'cfo', metric);
+      const educationExpenseBase = allFilteredFacts.reduce(function cashSumEducationExpenses(sum, fact) {
+        return cashIsExpense(fact) && cashIsEducationCfo(fact.cfo)
+          ? sum + Number(fact.outflow || 0)
+          : sum;
+      }, 0);
+
+      return Object.keys(grouped)
+        .map(function cashMapCfoEntry(cfo) {
+          const value = cashRound(grouped[cfo]);
+          const tooltip = cashBuildCfoTooltip(cfo, value, educationExpenseBase, metric);
+
+          return {
+            label: cfo,
+            value: value,
+            tooltip: tooltip,
+          };
+        })
+        .sort(function cashSortCfoEntries(a, b) {
+          return Math.abs(b.value) - Math.abs(a.value);
+        });
+    }
+
+    function cashBuildCfoTooltip(cfo, value, educationExpenseBase, metric) {
+      const baseText = cfo + ': ' + cashFormatCurrency(value);
+
+      if (metric !== 'outflow' || !cashIsAdministrativeCfo(cfo)) {
+        return baseText;
+      }
+
+      if (!educationExpenseBase) {
+        return baseText + '\nКоэффициент административной нагрузки: нет базы расходов по учебным ступеням.';
+      }
+
+      const loadRatio = Math.abs(value) / educationExpenseBase * 100;
+      return baseText
+        + '\nКоэффициент административной нагрузки: ' + cashFormatPercent(loadRatio)
+        + '\nФормула: расход ЦФО / расходы на учебные ступени.';
+    }
+
+    function cashRenderUnallocatedCfoWarning(facts) {
+      const warning = document.getElementById('cash-cfo-unallocated-warning');
+      const warningText = document.getElementById('cash-cfo-unallocated-warning-text');
+      const expenses = facts.filter(cashIsExpense);
+      const totalOutflow = expenses.reduce(function cashSumTotalOutflow(sum, fact) {
+        return sum + Number(fact.outflow || 0);
+      }, 0);
+      const unallocatedOutflow = expenses.reduce(function cashSumUnallocated(sum, fact) {
+        return cashIsUnallocatedCfo(fact.cfo)
+          ? sum + Number(fact.outflow || 0)
+          : sum;
+      }, 0);
+      const share = totalOutflow ? unallocatedOutflow / totalOutflow * 100 : 0;
+      const shouldWarn = share > 5;
+
+      warning.classList.toggle('is-cash-visible', shouldWarn);
+      warningText.textContent = shouldWarn
+        ? 'Сумма выплат по ЦФО «Не распределено» составляет '
+          + cashFormatCurrency(unallocatedOutflow)
+          + ' или '
+          + cashFormatPercent(share)
+          + ' от общего бюджета выплат. Требуется проверить разнесение затрат.'
+        : '';
+    }
+
+    function cashRenderMonthlyLine(facts, months) {
+      const target = document.getElementById('cash-monthly-line');
+
+      if (!months.length) {
+        target.innerHTML = '<div class="cash-empty">Нет данных для графика ЧДП.</div>';
+        return;
+      }
+
+      const grouped = {};
+      facts.forEach(function cashCollectNcf(fact) {
+        grouped[fact.monthKey] = (grouped[fact.monthKey] || 0) + Number(fact.cashFlowValue || 0);
+      });
+
+      target.innerHTML = cashBuildLineSvg(months.map(function cashMapLineValue(month) {
+        return {
+          label: month.label,
+          value: grouped[month.key] || 0,
+        };
+      }));
+    }
+
+    function cashRenderExpenseDonut(facts) {
+      const groupKey = cashState.expenseMode === 'direction'
+        ? 'direction'
+        : cashState.expenseMode === 'cfo'
+          ? 'cfo'
+          : 'normalizedArticleParent';
+      const grouped = cashToSortedEntries(cashGroupSum(facts.filter(cashIsExpense), groupKey, 'outflow')).slice(0, 10);
+      const total = grouped.reduce(function cashSumDonut(sum, item) {
+        return sum + item.value;
+      }, 0);
+      const colors = ['#27d3ff', '#36d6c2', '#9ea8ff', '#ff8a98', '#65dfff', '#5eead4', '#b7bfff', '#ffd166', '#86efac', '#fbbf24'];
+      let angle = 0;
+      const gradient = grouped.map(function cashMapDonut(item, index) {
+        const nextAngle = angle + (total ? item.value / total * 360 : 0);
+        const part = colors[index % colors.length] + ' ' + angle + 'deg ' + nextAngle + 'deg';
+        angle = nextAngle;
+        return part;
+      }).join(', ');
+
+      document.getElementById('cash-expense-donut').style.background = gradient
+        ? 'radial-gradient(circle at center, #111827 0 48%, transparent 49%), conic-gradient(' + gradient + ')'
+        : 'radial-gradient(circle at center, #111827 0 48%, transparent 49%), conic-gradient(rgba(148, 163, 184, 0.18) 0deg 360deg)';
+      document.getElementById('cash-expense-total').textContent = total ? cashFormatCompactCurrency(total) : '—';
+      document.getElementById('cash-expense-mode-label').textContent = cashGetExpenseModeLabel();
+      cashRenderPercentBars('cash-expense-legend', grouped, total, { empty: 'Нет расходов для структуры.' });
+    }
+
+    function cashRenderProductLines(facts) {
+      const revenueFacts = facts.filter(function cashFilterProductRevenue(fact) {
+        return cashIsIncome(fact) && Number(fact.inflow || 0) > 0;
+      });
+      const mode = cashState.productMode || 'line';
+      cashRefreshProductLineSelect(revenueFacts);
+      const preparedFacts = mode === 'product' && cashState.productLine !== 'all'
+        ? revenueFacts.filter(function cashFilterSelectedProductLine(fact) {
+          return cashGetFactArticleParent(fact) === cashState.productLine;
+        })
+        : revenueFacts;
+      const total = preparedFacts.reduce(function cashSumProductRevenue(sum, fact) {
+        return sum + Number(fact.inflow || 0);
+      }, 0);
+      const grouped = cashBuildProductGroups(preparedFacts, mode).slice(0, 12);
+      const top3 = grouped.slice(0, 3).reduce(function cashSumProductTop3(sum, item) {
+        return sum + item.value;
+      }, 0);
+      const leader = grouped[0] || null;
+
+      document.getElementById('cash-product-total').textContent = total ? cashFormatCurrency(total) : '—';
+      document.getElementById('cash-product-leader').textContent = leader ? leader.label : '—';
+      document.getElementById('cash-product-top3').textContent = total ? cashFormatPercent(top3 / total * 100) : '—';
+
+      cashRenderProductChart(grouped, total);
+      cashRenderProductInsight(grouped, total, mode);
+      cashRenderProductConcentrationWarning(grouped, total, mode);
+    }
+
+    function cashRefreshProductLineSelect(revenueFacts) {
+      const select = document.getElementById('cash-product-line-select');
+      const currentValue = cashState.productLine || 'all';
+      const grouped = cashBuildProductGroups(revenueFacts, 'line');
+      const options = [{ value: 'all', label: 'Все продуктовые линейки' }].concat(grouped.map(function cashMapProductLineOption(item) {
+        return {
+          value: item.label,
+          label: item.label + ' · ' + cashFormatCompactCurrency(item.value),
+        };
+      }));
+      const hasCurrent = options.some(function cashHasCurrentProductLine(option) {
+        return option.value === currentValue;
+      });
+      const nextValue = hasCurrent ? currentValue : 'all';
+
+      cashState.productLine = nextValue;
+      select.innerHTML = options.map(function cashMapProductLineSelect(option) {
+        return '<option value="' + cashEscape(option.value) + '"' + (option.value === nextValue ? ' selected' : '') + '>'
+          + cashEscape(option.label)
+          + '</option>';
+      }).join('');
+
+      document.getElementById('cash-product-line-note').textContent = nextValue === 'all'
+        ? 'Сейчас показаны все продуктовые линейки. Для детализации выберите конкретную линейку — например «Лагерь» или «Доп. образование».'
+        : 'Сейчас показаны продукты внутри линейки «' + nextValue + '». Каждая строка — значение поля «Статья ДДС».';
+    }
+
+    function cashBuildProductGroups(facts, mode) {
+      const registry = {};
+
+      facts.forEach(function cashGroupProductFact(fact) {
+        const key = cashGetProductGroupKey(fact, mode);
+
+        if (!registry[key]) {
+          registry[key] = {
+            label: key,
+            value: 0,
+            count: 0,
+            directions: {},
+            cfo: {},
+          };
+        }
+
+        registry[key].value += Number(fact.inflow || 0);
+        registry[key].count += 1;
+        registry[key].directions[fact.direction] = (registry[key].directions[fact.direction] || 0) + Number(fact.inflow || 0);
+        registry[key].cfo[fact.cfo] = (registry[key].cfo[fact.cfo] || 0) + Number(fact.inflow || 0);
+      });
+
+      return Object.keys(registry).map(function cashMapProductGroup(key) {
+        const item = registry[key];
+        item.value = cashRound(item.value);
+        return item;
+      }).sort(function cashSortProductGroups(a, b) {
+        return b.value - a.value || a.label.localeCompare(b.label, 'ru');
+      });
+    }
+
+    function cashGetProductGroupKey(fact, mode) {
+      if (mode === 'product') {
+        return fact.article || 'Без статьи ДДС';
+      }
+
+      return cashGetFactArticleParent(fact) || 'Без продуктовой линейки';
+    }
+
+    function cashRenderProductChart(grouped, total) {
+      const target = document.getElementById('cash-product-chart');
+      const maxValue = grouped.length ? grouped[0].value : 0;
+
+      if (!grouped.length || !total) {
+        target.innerHTML = '<div class="cash-empty">Нет денежных поступлений для продуктового анализа в выбранном срезе.</div>';
+        return;
+      }
+
+      target.innerHTML = grouped.map(function cashMapProductRow(item, index) {
+        const width = maxValue ? Math.max(item.value / maxValue * 100, 4) : 0;
+        const percent = total ? item.value / total * 100 : 0;
+
+        return '<div class="cash-product-row ' + (index === 0 ? 'cash-product-row--leader' : '') + '">'
+          + '<span class="cash-product-row__name" title="' + cashEscape(item.label) + '">'
+          + cashEscape(item.label)
+          + (index === 0 ? '<span class="cash-product-row__badge">Лидер</span>' : '')
+          + '</span>'
+          + '<span class="cash-product-row__bar">'
+          + '<span class="cash-product-row__fill" style="width:' + width + '%"></span>'
+          + '</span>'
+          + '<span class="cash-product-row__value">' + cashFormatCurrency(item.value) + '</span>'
+          + '<span class="cash-product-row__percent">' + cashFormatPercent(percent) + '</span>'
+          + '</div>';
+      }).join('');
+    }
+
+    function cashRenderProductInsight(grouped, total, mode) {
+      const target = document.getElementById('cash-product-insight');
+      const leader = grouped[0] || null;
+      const second = grouped[1] || null;
+      const top3 = grouped.slice(0, 3).reduce(function cashSumTopProducts(sum, item) {
+        return sum + item.value;
+      }, 0);
+      const title = mode === 'product'
+        ? (cashState.productLine === 'all'
+          ? 'Какие продукты формируют денежные поступления'
+          : 'Какие продукты внутри линейки «' + cashState.productLine + '» лидируют')
+        : 'Какие линейки держат денежный поток';
+
+      if (!leader || !total) {
+        target.innerHTML = '<p class="cash-product-insight__eyebrow">Инсайт</p>'
+          + '<h5 class="cash-product-insight__title">Недостаточно данных</h5>'
+          + '<p class="cash-product-insight__text">В выбранном срезе нет положительных денежных поступлений. Попробуйте расширить период или снять фильтр.</p>';
+        return;
+      }
+
+      target.innerHTML = '<p class="cash-product-insight__eyebrow">Инсайт продуктового портфеля</p>'
+        + '<h5 class="cash-product-insight__title">' + cashEscape(title) + '</h5>'
+        + '<p class="cash-product-insight__text">Лидер — <strong>' + cashEscape(leader.label) + '</strong>: '
+        + cashFormatCurrency(leader.value) + ' или ' + cashFormatPercent(leader.value / total * 100)
+        + ' денежных поступлений выбранного среза. ТОП‑3 дают ' + cashFormatPercent(top3 / total * 100) + '.</p>'
+        + '<ul class="cash-product-insight__list">'
+        + '<li><span>Кол-во активных позиций</span><strong>' + cashFormatNumber(grouped.length) + '</strong></li>'
+        + '<li><span>Операций у лидера</span><strong>' + cashFormatNumber(leader.count) + '</strong></li>'
+        + '<li><span>Отрыв от №2</span><strong>' + (second ? cashFormatCurrency(leader.value - second.value) : '—') + '</strong></li>'
+        + '</ul>';
+    }
+
+    function cashRenderProductConcentrationWarning(grouped, total, mode) {
+      const warning = document.getElementById('cash-product-concentration-warning');
+      const text = document.getElementById('cash-product-concentration-warning-text');
+      const leader = grouped[0] || null;
+      const top3 = grouped.slice(0, 3).reduce(function cashSumTopProductWarning(sum, item) {
+        return sum + item.value;
+      }, 0);
+      const leaderShare = leader && total ? leader.value / total * 100 : 0;
+      const top3Share = total ? top3 / total * 100 : 0;
+      const shouldShow = total > 0 && (leaderShare >= 45 || top3Share >= 80);
+
+      warning.classList.toggle('is-cash-visible', shouldShow);
+      text.textContent = shouldShow
+        ? 'Высокая зависимость от лидеров: '
+          + (leader ? 'ТОП‑1 «' + leader.label + '» даёт ' + cashFormatPercent(leaderShare) + '. ' : '')
+          + 'ТОП‑3 дают ' + cashFormatPercent(top3Share)
+          + '. Это хорошо для фокуса продаж, но рискованно для устойчивости поступлений.'
+        : '';
+    }
+
+    function cashRenderBalanceChart(balances) {
+      const target = document.getElementById('cash-balance-chart');
+
+      if (!balances.length) {
+        target.innerHTML = '<div class="cash-empty">Нет данных по остаткам.</div>';
+        cashRenderBalanceFotWarning([]);
+        return;
+      }
+
+      const maxValue = Math.max.apply(null, balances.map(function cashMapMax(item) {
+        return Math.max(item.openingBalance, item.expenseBenchmark);
+      })) || 1;
+
+      target.innerHTML = balances.map(function cashMapBalanceRow(item) {
+        const width = Math.max(item.openingBalance / maxValue * 100, 8);
+        const benchmark = Math.min(item.expenseBenchmark / maxValue * 100, 100);
+
+        return '<div class="cash-balance__row">'
+          + '<span class="cash-bar__label">' + cashEscape(item.label) + '</span>'
+          + '<span class="cash-balance__line">'
+          + '<span class="cash-balance__fill" style="width:' + width + '%"></span>'
+          + '<span class="cash-balance__inside">' + cashEscape(cashFormatCompactCurrency(item.openingBalance)) + '</span>'
+          + '<span class="cash-balance__benchmark" style="left:' + benchmark + '%"></span>'
+          + '</span>'
+          + '<span class="cash-bar__value">' + cashFormatCurrency(item.openingBalance) + '</span>'
+          + '</div>';
+      }).join('');
+
+      cashRenderBalanceFotWarning(balances);
+    }
+
+    function cashRenderBalanceFotWarning(balances) {
+      const warning = document.getElementById('cash-balance-fot-warning');
+      const text = document.getElementById('cash-balance-fot-warning-text');
+      const current = balances.length ? balances[balances.length - 1] : null;
+      const shouldWarn = current
+        && Number(current.expenseBenchmark || 0) > 0
+        && Number(current.openingBalance || 0) <= Number(current.expenseBenchmark || 0);
+
+      warning.classList.toggle('is-cash-visible', Boolean(shouldWarn));
+      text.textContent = shouldWarn
+        ? 'В актуальном месяце «' + current.label + '» входящий остаток '
+          + cashFormatCurrency(current.openingBalance)
+          + ' не покрывает средний ФОТ '
+          + cashFormatCurrency(current.expenseBenchmark)
+          + '. Нужен план финансирования или сокращения платежей.'
+        : '';
+    }
+
+    function cashRenderMatrix(facts, months, balances) {
+      const table = document.getElementById('cash-matrix-table');
+
+      if (!months.length) {
+        table.innerHTML = '<tbody><tr><td class="cash-empty">Нет данных для матрицы.</td></tr></tbody>';
+        return;
+      }
+
+      const head = months.map(function cashHeaderMonth(month) {
+        return '<th>' + cashEscape(month.label) + '</th>';
+      }).join('');
+      const rows = [
+        cashOpeningRow(months, balances),
+      ];
+
+      rows.push.apply(rows, cashOdddsRows(facts, months));
+      rows.push(cashMatrixRow('Общий ЧДП периода', facts, months, {
+        className: 'cash-row-total',
+        valueField: 'cashFlowValue',
+      }));
+      rows.push(cashClosingRow(months, balances));
+
+      table.innerHTML = '<thead><tr><th>Показатель</th>' + head + '</tr></thead><tbody>' + rows.join('') + '</tbody>';
+      table.querySelectorAll('[data-cash-drill="true"]').forEach(function cashBindDrill(cell) {
+        cell.addEventListener('dblclick', cashHandleMatrixDblClick);
+      });
+      table.querySelectorAll('[data-cash-toggle-row]').forEach(function cashBindToggle(button) {
+        button.addEventListener('click', cashToggleMatrixGroup);
+      });
+      cashCollapseMatrixLevel(2);
+    }
+
+    function cashOpeningRow(months, balances) {
+      const registry = {};
+      balances.forEach(function cashReg(balance) {
+        registry[balance.monthKey] = balance.openingBalance;
+      });
+
+      return '<tr class="cash-row-opening"><td>Остаток на начало периода</td>'
+        + months.map(function cashCell(month) {
+          return '<td>' + cashFormatCurrency(registry[month.key] || 0) + '</td>';
+        }).join('')
+        + '</tr>';
+    }
+
+    function cashClosingRow(months, balances) {
+      const registry = {};
+      balances.forEach(function cashReg(balance) {
+        registry[balance.monthKey] = balance.closingBalance;
+      });
+
+      return '<tr class="cash-row-opening"><td>Остаток на конец периода</td>'
+        + months.map(function cashCell(month) {
+          return '<td>' + cashFormatCurrency(registry[month.key] || 0) + '</td>';
+        }).join('')
+        + '</tr>';
+    }
+
+    function cashOdddsRows(facts, months) {
+      const sections = [
+        { key: 'operating', title: 'Раздел 1. Денежные потоки от текущей деятельности', ncf: 'ЧДП от текущей деятельности' },
+        { key: 'investing', title: 'Раздел 2. Денежные потоки от инвестиционной деятельности', ncf: 'ЧДП от инвест. деятельности' },
+        { key: 'financing', title: 'Раздел 3. Денежные потоки от финансовой деятельности', ncf: 'ЧДП от фин. деятельности' },
+      ];
+      const rows = [];
+
+      sections.forEach(function cashSection(section) {
+        const sectionFacts = facts.filter(function cashSectionFact(fact) {
+          return fact.cashFlowSectionKey === section.key;
+        });
+
+        const sectionId = 'cash-row-section-' + section.key;
+        rows.push(cashPlainRow(section.title, months, {
+          className: 'cash-row-section',
+          rowId: sectionId,
+          level: 0,
+          expandable: true,
+        }));
+        rows.push.apply(rows, cashTypeRows(sectionFacts, months, 'Поступления', section, sectionId));
+        rows.push.apply(rows, cashTypeRows(sectionFacts, months, 'Платежи', section, sectionId));
+        rows.push(cashMatrixRow(section.ncf, sectionFacts, months, {
+          className: 'cash-row-total',
+          cashFlowSectionKey: section.key,
+          valueField: 'cashFlowValue',
+          parentId: sectionId,
+          level: 1,
+        }));
+      });
+
+      return rows;
+    }
+
+    function cashTypeRows(sectionFacts, months, type, section, sectionId) {
+      const rows = [];
+      const typeFacts = sectionFacts.filter(function cashTypeFact(fact) {
+        return fact.cashFlowType === type;
+      });
+      const typeId = sectionId + '-' + cashSlug(type);
+
+      rows.push(cashMatrixRow(type, typeFacts, months, {
+        className: 'cash-row-total',
+        cashFlowSectionKey: section.key,
+        cashFlowType: type,
+        valueField: 'cashFlowValue',
+        rowId: typeId,
+        parentId: sectionId,
+        level: 1,
+        expandable: true,
+      }));
+
+      cashUnique(typeFacts.map(function cashParent(fact) {
+        return cashGetFactArticleParent(fact);
+      })).sort(function cashSortParentsBySum(a, b) {
+        return cashMatrixGroupAbsSum(typeFacts, 'normalizedArticleParent', b) - cashMatrixGroupAbsSum(typeFacts, 'normalizedArticleParent', a);
+      }).forEach(function cashParentRow(parent) {
+        const parentFacts = typeFacts.filter(function cashFactParent(fact) {
+          return cashGetFactArticleParent(fact) === parent;
+        });
+        const parentId = typeId + '-' + cashSlug(parent);
+
+        rows.push(cashMatrixRow('↳ ' + parent, parentFacts, months, {
+          cashFlowSectionKey: section.key,
+          cashFlowType: type,
+          articleParent: parent,
+          valueField: 'cashFlowValue',
+          rowId: parentId,
+          parentId: typeId,
+          level: 2,
+          expandable: true,
+        }));
+
+        cashUnique(parentFacts.map(function cashArticle(fact) {
+          return fact.article;
+        })).sort(function cashSortArticlesBySum(a, b) {
+          return cashMatrixGroupAbsSum(parentFacts, 'article', b) - cashMatrixGroupAbsSum(parentFacts, 'article', a);
+        }).forEach(function cashArticleRow(article) {
+          const articleFacts = parentFacts.filter(function cashFactArticle(fact) {
+            return fact.article === article;
+          });
+
+          rows.push(cashMatrixRow('·· ' + article, articleFacts, months, {
+            cashFlowSectionKey: section.key,
+            cashFlowType: type,
+            articleParent: parent,
+            article: article,
+            valueField: 'cashFlowValue',
+            parentId: parentId,
+            level: 3,
+          }));
+        });
+      });
+
+      return rows;
+    }
+
+    function cashPlainRow(label, months, meta) {
+      const safeMeta = meta || {};
+      const rowAttrs = cashMatrixRowAttrs(safeMeta);
+      const labelHtml = cashMatrixLabel(label, safeMeta);
+
+      return '<tr ' + rowAttrs + '><td class="cash-matrix__label">' + labelHtml + '</td>'
+        + months.map(function cashEmptyCell() {
+          return '<td></td>';
+        }).join('')
+        + '</tr>';
+    }
+
+    function cashMatrixGroupAbsSum(facts, fieldName, fieldValue) {
+      return facts.reduce(function cashReduceMatrixGroupSum(sum, fact) {
+        return cashGetFactValue(fact, fieldName) === fieldValue
+          ? sum + Math.abs(Number(fact.cashFlowValue || 0))
+          : sum;
+      }, 0);
+    }
+
+    function cashMatrixRow(label, facts, months, meta) {
+      const grouped = {};
+
+      facts.forEach(function cashGroupFact(fact) {
+        const value = meta.valueField === 'cashFlowValue'
+          ? Number(fact.cashFlowValue || 0)
+          : meta.valueField === 'cashFlowAbs'
+            ? Math.abs(Number(fact.cashFlowValue || 0))
+            : Number(fact.amount || 0);
+
+        grouped[fact.monthKey] = (grouped[fact.monthKey] || 0) + value;
+      });
+
+      const cells = months.map(function cashBuildCell(month) {
+        const value = grouped[month.key] || 0;
+
+        return '<td class="cash-matrix__cell" data-cash-drill="true"'
+          + ' data-cash-month="' + cashEscape(month.key) + '"'
+          + ' data-cash-parent="' + cashEscape(meta.articleParent || '') + '"'
+          + ' data-cash-article="' + cashEscape(meta.article || '') + '"'
+          + ' data-cash-section="' + cashEscape(meta.cashFlowSectionKey || '') + '"'
+          + ' data-cash-type="' + cashEscape(meta.cashFlowType || '') + '">'
+          + cashFormatCurrency(value)
+          + '</td>';
+      }).join('');
+
+      return '<tr ' + cashMatrixRowAttrs(meta) + '><td class="cash-matrix__label">' + cashMatrixLabel(label, meta) + '</td>' + cells + '</tr>';
+    }
+
+    function cashMatrixRowAttrs(meta) {
+      const classes = [
+        'cash-matrix__row',
+        meta.className || '',
+        'cash-matrix__row--level-' + (meta.level || 0),
+      ].filter(Boolean).join(' ');
+      const rowId = meta.rowId ? ' data-cash-row-id="' + cashEscape(meta.rowId) + '"' : '';
+      const parentId = meta.parentId ? ' data-cash-parent-row="' + cashEscape(meta.parentId) + '"' : '';
+
+      return 'class="' + cashEscape(classes) + '"' + rowId + parentId;
+    }
+
+    function cashMatrixLabel(label, meta) {
+      if (!meta.expandable || !meta.rowId) {
+        return cashEscape(label);
+      }
+
+      return '<button class="cash-matrix__toggle" type="button" data-cash-toggle-row="' + cashEscape(meta.rowId) + '">'
+        + '<span class="cash-matrix__caret">⌄</span>'
+        + '<span>' + cashEscape(label) + '</span>'
+        + '</button>';
+    }
+
+    function cashToggleMatrixGroup(event) {
+      event.stopPropagation();
+
+      const button = event.currentTarget;
+      const rowId = button.getAttribute('data-cash-toggle-row');
+      const isCollapsed = button.classList.toggle('is-cash-collapsed');
+      cashSetMatrixChildrenVisibility(rowId, isCollapsed);
+    }
+
+    function cashSetMatrixChildrenVisibility(parentId, shouldHide) {
+      document.querySelectorAll('[data-cash-parent-row="' + parentId + '"]').forEach(function cashToggleChild(row) {
+        row.classList.toggle('is-cash-hidden', shouldHide);
+
+        if (shouldHide) {
+          const childId = row.getAttribute('data-cash-row-id');
+          const childButton = childId ? document.querySelector('[data-cash-toggle-row="' + childId + '"]') : null;
+
+          if (childButton) {
+            childButton.classList.add('is-cash-collapsed');
+            cashSetMatrixChildrenVisibility(childId, true);
+          }
+        }
+      });
+    }
+
+    function cashCollapseMatrixLevel(level) {
+      document.querySelectorAll('.cash-matrix__row--level-' + level + ' [data-cash-toggle-row]').forEach(function cashCollapseButton(button) {
+        const rowId = button.getAttribute('data-cash-toggle-row');
+        button.classList.add('is-cash-collapsed');
+        cashSetMatrixChildrenVisibility(rowId, true);
+      });
+    }
+
+    function cashHandleMatrixDblClick(event) {
+      const cell = event.currentTarget;
+      cashOpenDrilldown('Загрузка детализации…', 'Получаю оригинальные транзакции');
+
+      google.script.run
+        .withSuccessHandler(cashHandleDrillSuccess)
+        .withFailureHandler(cashHandleDrillFailure)
+        .cashGetMoneyDrilldown({
+          filters: cashState.filters,
+          monthKey: cell.getAttribute('data-cash-month'),
+          articleParent: cell.getAttribute('data-cash-parent'),
+          article: cell.getAttribute('data-cash-article'),
+          cashFlowSectionKey: cell.getAttribute('data-cash-section'),
+          cashFlowType: cell.getAttribute('data-cash-type'),
+        });
+    }
+
+    function cashOpenDrilldown(title, subtitle) {
+      document.getElementById('cash-drill-title').textContent = title;
+      document.getElementById('cash-drill-subtitle').textContent = subtitle;
+      document.getElementById('cash-drill-body').innerHTML = '<tr><td colspan="5">Загрузка…</td></tr>';
+      document.getElementById('cash-drill-modal').classList.add('is-cash-open');
+      document.getElementById('cash-drill-modal').setAttribute('aria-hidden', 'false');
+    }
+
+    function cashHandleDrillSuccess(response) {
+      if (!response || !response.success) {
+        cashHandleDrillFailure(response && response.error ? response.error : new Error('Ошибка детализации'));
+        return;
+      }
+
+      const rows = response.data.rows || [];
+      document.getElementById('cash-drill-title').textContent = 'Детализация транзакций';
+      document.getElementById('cash-drill-subtitle').textContent = 'Найдено строк: ' + cashFormatNumber(rows.length);
+      document.getElementById('cash-drill-body').innerHTML = rows.length
+        ? rows.map(function cashDrillRow(row) {
+          return '<tr>'
+            + '<td>' + cashEscape(row.dateLabel) + '</td>'
+            + '<td>' + cashEscape(row.registrar) + '</td>'
+            + '<td class="cash-number">' + cashEscape(row.amountLabel) + '</td>'
+            + '<td>' + cashEscape(row.cfo) + '</td>'
+            + '<td>' + cashEscape(row.comment) + '</td>'
+            + '</tr>';
+        }).join('')
+        : '<tr><td colspan="5">Нет транзакций для выбранной ячейки.</td></tr>';
+    }
+
+    function cashHandleDrillFailure(error) {
+      const message = error && error.message ? error.message : 'Не удалось открыть детализацию';
+      document.getElementById('cash-drill-body').innerHTML = '<tr><td colspan="5">' + cashEscape(message) + '</td></tr>';
+    }
+
+    function cashCloseDrilldown() {
+      document.getElementById('cash-drill-modal').classList.remove('is-cash-open');
+      document.getElementById('cash-drill-modal').setAttribute('aria-hidden', 'true');
+    }
+
+    function cashOpenOwnerHelp() {
+      document.getElementById('cash-owner-help-modal').classList.add('is-cash-open');
+      document.getElementById('cash-owner-help-modal').setAttribute('aria-hidden', 'false');
+    }
+
+    function cashCloseOwnerHelp() {
+      document.getElementById('cash-owner-help-modal').classList.remove('is-cash-open');
+      document.getElementById('cash-owner-help-modal').setAttribute('aria-hidden', 'true');
+    }
+
+    function cashHandleModalOverlayClick(event) {
+      if (event.target.id === 'cash-drill-modal') {
+        cashCloseDrilldown();
+      }
+
+      if (event.target.id === 'cash-owner-help-modal') {
+        cashCloseOwnerHelp();
+      }
+    }
+
+    function cashRenderBars(targetId, entries, options) {
+      const target = document.getElementById(targetId);
+      const safeOptions = options || {};
+
+      if (!entries.length) {
+        target.innerHTML = '<div class="cash-empty">' + cashEscape(safeOptions.empty || 'Нет данных.') + '</div>';
+        return;
+      }
+
+      const total = entries.reduce(function cashSumEntries(sum, item) {
+        return sum + Math.abs(item.value);
+      }, 0) || 1;
+      const maxValue = Math.max.apply(null, entries.map(function cashAbs(item) {
+        return Math.abs(item.value);
+      })) || 1;
+
+      target.innerHTML = entries.map(function cashBar(item) {
+        const share = Math.abs(item.value) / total;
+        const width = Math.max(Math.abs(item.value) / maxValue * 100, 2);
+        const color = share > (safeOptions.alertShare || 999) ? 'red' : item.value < 0 ? 'purple' : 'cyan';
+        const tooltip = item.tooltip || (item.label + ': ' + cashFormatCurrency(item.value));
+
+        const suffixClass = item.suffix && String(item.suffix).indexOf('-') !== -1
+          ? ' cash-bar__suffix--negative'
+          : '';
+
+        return '<div class="cash-bar ' + (item.suffix ? 'cash-bar--with-suffix' : '') + '" title="' + cashEscape(tooltip) + '">'
+          + '<span class="cash-bar__label" title="' + cashEscape(tooltip) + '">' + cashEscape(item.label) + '</span>'
+          + '<span class="cash-bar__track"><span class="cash-bar__fill cash-bar__fill--' + color + '" style="width:' + width + '%"></span></span>'
+          + '<span class="cash-bar__value">'
+          + '<span class="cash-bar__amount">' + cashFormatCurrency(item.value) + '</span>'
+          + (item.suffix ? '<span class="cash-bar__suffix' + suffixClass + '">' + cashEscape(item.suffix) + '</span>' : '')
+          + '</span>'
+          + '</div>';
+      }).join('');
+    }
+
+    function cashRenderPercentBars(targetId, entries, total, options) {
+      const target = document.getElementById(targetId);
+      const safeOptions = options || {};
+      const colors = ['#27d3ff', '#36d6c2', '#9ea8ff', '#ff8a98', '#65dfff', '#5eead4', '#b7bfff', '#ffd166', '#86efac', '#fbbf24'];
+
+      if (!entries.length) {
+        target.innerHTML = '<div class="cash-empty">' + cashEscape(safeOptions.empty || 'Нет данных.') + '</div>';
+        return;
+      }
+
+      const safeTotal = total || entries.reduce(function cashSumPercentEntries(sum, item) {
+        return sum + Math.abs(item.value);
+      }, 0) || 1;
+
+      target.innerHTML = entries.map(function cashPercentBar(item, index) {
+        const percent = Math.abs(item.value) / safeTotal * 100;
+        const color = colors[index % colors.length];
+
+        return '<div class="cash-legend-row">'
+          + '<span class="cash-legend-row__dot" style="color:' + color + '; background:' + color + '"></span>'
+          + '<span class="cash-legend-row__label" title="' + cashEscape(item.label) + '">' + cashEscape(item.label) + '</span>'
+          + '<span class="cash-legend-row__percent">' + cashFormatPercent(percent) + '</span>'
+          + '<span class="cash-legend-row__value">' + cashFormatCurrency(item.value) + '</span>'
+          + '</div>';
+      }).join('');
+    }
+
+    function cashBuildLineSvg(values) {
+      const width = 720;
+      const height = 300;
+      const padding = 44;
+      const maxAbs = Math.max.apply(null, values.map(function cashValueAbs(item) {
+        return Math.abs(item.value);
+      })) || 1;
+      const chartHeight = height - padding * 2;
+      const zeroY = height / 2;
+
+      const points = values.map(function cashPoint(item, index) {
+        const x = padding + (values.length === 1 ? 0 : index * ((width - padding * 2) / (values.length - 1)));
+        const y = zeroY - (item.value / maxAbs) * (chartHeight / 2);
+
+        return {
+          x: x,
+          y: y,
+          label: item.label,
+          value: item.value,
+        };
+      });
+
+      const path = points.map(function cashPath(point, index) {
+        return (index ? 'L' : 'M') + point.x + ',' + point.y;
+      }).join(' ');
+      const areaPath = points.length
+        ? path + ' L' + points[points.length - 1].x + ',' + zeroY + ' L' + points[0].x + ',' + zeroY + ' Z'
+        : '';
+      const grid = [-1, -0.5, 0, 0.5, 1].map(function cashGridLine(ratio) {
+        const y = zeroY - ratio * (chartHeight / 2);
+        return '<line class="cash-line__grid" x1="' + padding + '" y1="' + y + '" x2="' + (width - padding) + '" y2="' + y + '"></line>';
+      }).join('');
+      const circles = points.map(function cashCircle(point) {
+        return '<circle class="cash-line__point" cx="' + point.x + '" cy="' + point.y + '" r="4"></circle>'
+          + '<text class="cash-line__value" x="' + point.x + '" y="' + (point.y - 10) + '" text-anchor="middle">'
+          + cashEscape(cashFormatCompactCurrency(point.value))
+          + '</text>';
+      }).join('');
+      const labels = points.map(function cashLabel(point) {
+        return '<text x="' + point.x + '" y="' + (height - 8) + '" text-anchor="middle">'
+          + cashEscape(point.label.split(' ')[0].slice(0, 3))
+          + '</text>';
+      }).join('');
+
+      return '<svg class="cash-line" viewBox="0 0 ' + width + ' ' + height + '" role="img">'
+        + grid
+        + '<line class="cash-line__axis" x1="' + padding + '" y1="' + zeroY + '" x2="' + (width - padding) + '" y2="' + zeroY + '"></line>'
+        + '<path class="cash-line__area" d="' + areaPath + '"></path>'
+        + '<path class="cash-line__path" d="' + path + '"></path>'
+        + circles
+        + labels
+        + '</svg>';
+    }
+
+    function cashRenderMoneyDiagnostics(facts, months, balances) {
+      const cardsTarget = document.getElementById('cash-money-diagnostics');
+      const listTarget = document.getElementById('cash-money-diagnostic-list');
+
+      if (!facts.length || !months.length || !balances.length) {
+        cardsTarget.innerHTML = '<div class="cash-empty">Нет данных для денежной диагностики.</div>';
+        listTarget.innerHTML = '';
+        return;
+      }
+
+      const currentMonth = months[months.length - 1];
+      const currentBalance = balances[balances.length - 1];
+      const currentFacts = facts.filter(function cashFilterCurrentDiagnosticMonth(fact) {
+        return fact.monthKey === currentMonth.key;
+      });
+      const mandatoryPayments = cashCalculateMandatoryPayments(currentFacts);
+      const paymentReserve = cashRound(Number(currentBalance.closingBalance || 0) - mandatoryPayments);
+      const paymentStatus = cashGetPaymentRiskStatus(paymentReserve, mandatoryPayments);
+      const buffer = cashCalculateBuffer(facts, balances);
+      const seasonStatus = cashBuildSeasonDiagnostic(currentMonth, buffer);
+      const concentrationStatus = cashBuildConcentrationDiagnostic(facts);
+      const qualityStatus = cashBuildQualityDiagnostic(facts);
+      const cards = [
+        {
+          label: 'Платежный запас',
+          value: cashFormatCurrency(paymentReserve),
+          text: 'Остаток после обязательных платежей месяца: ФОТ, аренда, налоги, кредиты и базовая инфраструктура.',
+          level: paymentStatus.level,
+        },
+        {
+          label: 'Обязательные платежи',
+          value: cashFormatCurrency(mandatoryPayments),
+          text: 'Ориентир платежной нагрузки по актуальному месяцу: ' + currentMonth.label + '.',
+          level: paymentStatus.level,
+        },
+        {
+          label: 'Сезонный режим',
+          value: seasonStatus.value,
+          text: seasonStatus.text,
+          level: seasonStatus.level,
+        },
+        {
+          label: 'Качество учета',
+          value: qualityStatus.value,
+          text: qualityStatus.text,
+          level: qualityStatus.level,
+        },
+      ];
+      const list = cashBuildDiagnosticList(facts, months, concentrationStatus);
+
+      cardsTarget.innerHTML = cards.map(function cashRenderDiagnosticCard(card) {
+        return '<article class="cash-diagnostic-card cash-diagnostic-card--' + card.level + '">'
+          + '<p class="cash-diagnostic-card__label">' + cashEscape(card.label) + '</p>'
+          + '<p class="cash-diagnostic-card__value">' + cashEscape(card.value) + '</p>'
+          + '<p class="cash-diagnostic-card__text">' + cashEscape(card.text) + '</p>'
+          + '</article>';
+      }).join('');
+
+      listTarget.innerHTML = list.map(function cashRenderDiagnosticListItem(item) {
+        return '<div class="cash-diagnostic-list__item">'
+          + '<div>'
+          + '<div class="cash-diagnostic-list__title">' + cashEscape(item.title) + '</div>'
+          + '<div class="cash-diagnostic-list__meta">' + cashEscape(item.meta) + '</div>'
+          + '</div>'
+          + '<div class="cash-diagnostic-list__value">' + cashEscape(item.value) + '</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    function cashCalculateMandatoryPayments(facts) {
+      return cashRound(facts.reduce(function cashSumMandatoryPayments(sum, fact) {
+        return cashIsMandatoryPayment(fact) ? sum + Number(fact.outflow || 0) : sum;
+      }, 0));
+    }
+
+    function cashIsMandatoryPayment(fact) {
+      if (!cashIsExpense(fact)) return false;
+
+      const text = cashNormalizeForSearch([
+        cashGetFactArticleParent(fact),
+        fact.originalArticleParent,
+        fact.articleParent,
+        fact.article,
+        fact.topLevel,
+      ].join(' '));
+
+      return [
+        'фот',
+        'аренд',
+        'налог',
+        'взнос',
+        'кредит',
+        'ссуд',
+        'коммун',
+        'охрана',
+        'по/лиценз',
+        'лиценз',
+        'комисси',
+        'обязательн',
+      ].some(function cashMatchMandatoryPayment(pattern) {
+        return text.indexOf(pattern) !== -1;
+      });
+    }
+
+    function cashGetPaymentRiskStatus(reserve, mandatoryPayments) {
+      if (reserve < 0) return cashSignal('red', 'Дефицит после обязательств');
+      if (mandatoryPayments > 0 && reserve < mandatoryPayments * 0.5) return cashSignal('yellow', 'Запас тонкий');
+      return cashSignal('green', 'Запас есть');
+    }
+
+    function cashBuildSeasonDiagnostic(month, buffer) {
+      const date = new Date(month.key + 'T00:00:00');
+      const monthNumber = date.getMonth() + 1;
+
+      if (monthNumber >= 6 && monthNumber <= 8) {
+        return {
+          value: 'Летний риск',
+          text: buffer.days >= 60 ? 'Летний норматив 60+ дней выдержан.' : 'Для лета нужен резерв минимум на 60 дней постоянных расходов.',
+          level: buffer.days >= 60 ? 'green' : buffer.days >= 45 ? 'yellow' : 'red',
+        };
+      }
+
+      if (monthNumber >= 9 && monthNumber <= 10) {
+        return {
+          value: 'Авансовый пик',
+          text: 'Проверяйте коэффициент авансирования: деньги могут относиться к будущим периодам.',
+          level: 'yellow',
+        };
+      }
+
+      if (monthNumber >= 1 && monthNumber <= 2) {
+        return {
+          value: 'Зимний контроль',
+          text: 'Период после крупных осенних поступлений: важно контролировать темп расходов.',
+          level: buffer.days >= 30 ? 'green' : 'yellow',
+        };
+      }
+
+      return {
+        value: 'Обычный месяц',
+        text: buffer.days >= 30 ? 'Норматив ликвидности 30+ дней выдержан.' : 'Нужен контроль платежного календаря.',
+        level: buffer.days >= 30 ? 'green' : 'yellow',
+      };
+    }
+
+    function cashBuildQualityDiagnostic(facts) {
+      const validation = cashState.validation || {};
+      const sourceDifference = validation.sourceReconciliation ? Math.abs(Number(validation.sourceReconciliation.difference || 0)) : 0;
+      const internalNet = validation.internalFilter ? Math.abs(Number(validation.internalFilter.netAmount || 0)) : 0;
+      const unclear = Math.abs(facts.reduce(function cashSumQualityUnclear(sum, fact) {
+        return fact.isUnclear ? sum + Number(fact.cashFlowValue || 0) : sum;
+      }, 0));
+      const outflow = facts.reduce(function cashSumQualityOutflow(sum, fact) {
+        return sum + Number(fact.outflow || 0);
+      }, 0);
+      const unallocated = facts.reduce(function cashSumQualityUnallocated(sum, fact) {
+        return cashIsExpense(fact) && cashIsUnallocatedCfo(fact.cfo) ? sum + Number(fact.outflow || 0) : sum;
+      }, 0);
+      const unallocatedShare = outflow ? unallocated / outflow : 0;
+
+      if (sourceDifference >= 0.01 || internalNet >= 0.01) {
+        return { value: 'Красный флаг', text: 'Есть расхождения баланса или внутренних перемещений. Сначала проверить учет.', level: 'red' };
+      }
+
+      if (unclear >= 100000 || unallocatedShare > 0.05) {
+        return { value: 'Требует разбора', text: 'Есть существенные суммы «Выяснить» или ЦФО «Не распределено».', level: 'yellow' };
+      }
+
+      return { value: 'Контроль пройден', text: 'Критичных ошибок качества данных по текущему срезу не видно.', level: 'green' };
+    }
+
+    function cashBuildConcentrationDiagnostic(facts) {
+      const inflowFacts = facts.filter(function cashFilterConcentrationInflow(fact) {
+        return cashIsIncome(fact) && Number(fact.inflow || 0) > 0;
+      });
+      const total = inflowFacts.reduce(function cashSumConcentrationTotal(sum, fact) {
+        return sum + Number(fact.inflow || 0);
+      }, 0);
+      const products = cashToSortedEntries(cashGroupSum(inflowFacts, 'article', 'inflow'));
+      const leader = products[0] || null;
+      const top3 = products.slice(0, 3).reduce(function cashSumConcentrationTop3(sum, item) {
+        return sum + Number(item.value || 0);
+      }, 0);
+      const leaderShare = leader && total ? leader.value / total : 0;
+      const top3Share = total ? top3 / total : 0;
+
+      return {
+        leader: leader,
+        leaderShare: leaderShare,
+        top3Share: top3Share,
+        level: leaderShare > 0.45 || top3Share > 0.7 ? 'yellow' : 'green',
+      };
+    }
+
+    function cashBuildDiagnosticList(facts, months, concentration) {
+      const deviations = cashBuildMonthDeviationDiagnostics(facts, months);
+      const concentrationItem = concentration.leader
+        ? {
+          title: 'Риск концентрации поступлений',
+          meta: 'Лидер продуктовых поступлений: ' + concentration.leader.label,
+          value: cashFormatPercent(concentration.leaderShare * 100),
+        }
+        : {
+          title: 'Риск концентрации поступлений',
+          meta: 'Нет выраженного лидера по продуктовым поступлениям.',
+          value: '—',
+        };
+
+      return [concentrationItem].concat(deviations).slice(0, 5);
+    }
+
+    function cashBuildMonthDeviationDiagnostics(facts, months) {
+      if (months.length < 2) {
+        return [{
+          title: 'Отклонения к прошлому месяцу',
+          meta: 'Для сравнения нужен минимум два месяца в выбранном срезе.',
+          value: '—',
+        }];
+      }
+
+      const current = months[months.length - 1];
+      const previous = months[months.length - 2];
+      const currentFacts = facts.filter(function cashFilterDeviationCurrent(fact) { return fact.monthKey === current.key; });
+      const previousFacts = facts.filter(function cashFilterDeviationPrevious(fact) { return fact.monthKey === previous.key; });
+      const currentInflow = cashSumMetric(currentFacts, 'inflow');
+      const previousInflow = cashSumMetric(previousFacts, 'inflow');
+      const currentOutflow = cashSumMetric(currentFacts, 'outflow');
+      const previousOutflow = cashSumMetric(previousFacts, 'outflow');
+      const currentNcf = cashSumMetric(currentFacts, 'cashFlowValue');
+      const previousNcf = cashSumMetric(previousFacts, 'cashFlowValue');
+      const outflowGrowth = currentOutflow - previousOutflow;
+      const ncfChange = currentNcf - previousNcf;
+      const articleGrowth = cashFindLargestArticleOutflowGrowth(currentFacts, previousFacts);
+
+      return [
+        {
+          title: 'Динамика поступлений',
+          meta: current.label + ' к ' + previous.label,
+          value: cashFormatSignedCurrency(currentInflow - previousInflow),
+        },
+        {
+          title: outflowGrowth > 0 ? 'Рост выплат' : 'Снижение выплат',
+          meta: current.label + ' к ' + previous.label,
+          value: cashFormatSignedCurrency(outflowGrowth),
+        },
+        {
+          title: 'Изменение ЧДП',
+          meta: current.label + ' к ' + previous.label,
+          value: cashFormatSignedCurrency(ncfChange),
+        },
+        articleGrowth,
+      ];
+    }
+
+    function cashFindLargestArticleOutflowGrowth(currentFacts, previousFacts) {
+      const current = cashToSortedEntries(cashGroupSum(currentFacts.filter(cashIsExpense), 'normalizedArticleParent', 'outflow'));
+      const previousMap = {};
+
+      cashToSortedEntries(cashGroupSum(previousFacts.filter(cashIsExpense), 'normalizedArticleParent', 'outflow')).forEach(function cashMapPreviousArticle(item) {
+        previousMap[item.label] = item.value;
+      });
+
+      const growth = current.map(function cashMapArticleGrowth(item) {
+        return {
+          label: item.label,
+          value: Number(item.value || 0) - Number(previousMap[item.label] || 0),
+        };
+      }).sort(function cashSortArticleGrowth(a, b) {
+        return b.value - a.value;
+      })[0];
+
+      if (!growth || growth.value <= 0) {
+        return {
+          title: 'Статья с ростом выплат',
+          meta: 'Существенного роста по статьям не найдено.',
+          value: '—',
+        };
+      }
+
+      return {
+        title: 'Крупнейший рост выплат',
+        meta: growth.label,
+        value: cashFormatSignedCurrency(growth.value),
+      };
+    }
+
+    function cashSumMetric(facts, key) {
+      return facts.reduce(function cashReduceMetric(sum, fact) {
+        return sum + Number(fact[key] || 0);
+      }, 0);
+    }
+
+    function cashFormatSignedCurrency(value) {
+      const sign = value > 0 ? '+' : '';
+      return sign + cashFormatCurrency(value);
+    }
+
+    function cashRenderValidation() {
+      const validation = cashState.validation;
+      const target = document.getElementById('cash-validation');
+
+      if (!validation) {
+        target.innerHTML = '<div class="cash-empty">Нет данных валидации.</div>';
+        return;
+      }
+
+      target.innerHTML = cashValidationItem(validation.balance.isPassed ? 'ok' : 'warn', 'Баланс', validation.balance.message)
+        + cashValidationItem(validation.sourceReconciliation && validation.sourceReconciliation.isPassed ? 'ok' : 'warn', 'Сверка Деньги ↔ ОДДС', validation.sourceReconciliation ? validation.sourceReconciliation.message : 'Сверка недоступна.')
+        + cashValidationItem('ok', 'Внутренние перемещения', validation.internalFilter.message)
+        + cashValidationItem('ok', 'Пустые поля', validation.emptyFields.message);
+    }
+
+    function cashValidationItem(status, title, text) {
+      return '<div class="cash-validation__item cash-validation__item--' + status + '">'
+        + '<strong>' + cashEscape(title) + '</strong>'
+        + '<div class="cash-panel__hint">' + cashEscape(text) + '</div>'
+        + '</div>';
+    }
+
+    function cashRenderEmpty(message) {
+      [
+        'cash-cfo-chart',
+        'cash-direction-chart',
+        'cash-monthly-line',
+        'cash-expense-legend',
+        'cash-balance-chart',
+        'cash-money-diagnostics',
+        'cash-money-diagnostic-list',
+        'cash-validation',
+      ].forEach(function cashSetEmpty(id) {
+        document.getElementById(id).innerHTML = '<div class="cash-empty">' + cashEscape(message) + '</div>';
+      });
+    }
+
+    function cashGroupSum(items, key, valueKey) {
+      return items.reduce(function cashReduceGroup(result, item) {
+        const group = cashGetFactValue(item, key);
+        result[group] = (result[group] || 0) + Number(item[valueKey] || 0);
+        return result;
+      }, {});
+    }
+
+    function cashGroupAbsCashFlow(items, key) {
+      return items.reduce(function cashReduceAbs(result, item) {
+        result[item[key]] = (result[item[key]] || 0) + Math.abs(Number(item.cashFlowValue || 0));
+        return result;
+      }, {});
+    }
+
+    function cashGroupNetPayment(items, key) {
+      return items.reduce(function cashReduceNetPayment(result, item) {
+        result[item[key]] = (result[item[key]] || 0) + cashPaymentAmount(item);
+        return result;
+      }, {});
+    }
+
+    function cashPaymentAmount(fact) {
+      return -Number(fact.cashFlowValue || 0);
+    }
+
+    function cashToSortedEntries(grouped) {
+      return Object.keys(grouped)
+        .map(function cashEntry(key) {
+          return {
+            label: key,
+            value: cashRound(grouped[key]),
+          };
+        })
+        .sort(function cashSort(a, b) {
+          return Math.abs(b.value) - Math.abs(a.value);
+        });
+    }
+
+    function cashUnique(items) {
+      return Array.from(new Set(items));
+    }
+
+    function cashSlug(value) {
+      return String(value || '')
+        .toLowerCase()
+        .replace(/ё/g, 'е')
+        .replace(/[^a-zа-я0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') || 'empty';
+    }
+
+    function cashIsIncome(fact) {
+      return String(fact.topLevel).toLowerCase() === 'выручка';
+    }
+
+    function cashIsExpense(fact) {
+      return String(fact.topLevel).toLowerCase() === 'затраты/расходы';
+    }
+
+    function cashIsOperatingPayment(fact) {
+      return fact.cashFlowSectionKey === 'operating' && fact.cashFlowType === 'Платежи';
+    }
+
+    function cashIsFotPayment(fact) {
+      return cashIsOperatingPayment(fact)
+        && String((fact.articleParent || '') + ' ' + (fact.article || '')).toLowerCase().indexOf('фот') !== -1;
+    }
+
+    function cashIsMainEducationArticle(articleParent) {
+      return cashNormalizeForSearch(articleParent).indexOf('основное образование') !== -1;
+    }
+
+    function cashIsFotOrRentArticle(articleParent, article) {
+      const text = cashNormalizeForSearch((articleParent || '') + ' ' + (article || ''));
+      return text.indexOf('фот') !== -1
+        || text.indexOf('аренда') !== -1;
+    }
+
+    function cashSafeDivide(numerator, denominator) {
+      const safeNumerator = Number(numerator || 0);
+      const safeDenominator = Number(denominator || 0);
+
+      if (!isFinite(safeNumerator) || !isFinite(safeDenominator) || safeDenominator === 0) {
+        return null;
+      }
+
+      return safeNumerator / safeDenominator;
+    }
+
+    function cashNormalizeForSearch(value) {
+      return String(value || '')
+        .toLowerCase()
+        .replace(/ё/g, 'е')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function cashGetFactArticleParent(fact) {
+      return fact.normalizedArticleParent || fact.articleParent || '';
+    }
+
+    function cashGetFactValue(fact, key) {
+      if (key === 'normalizedArticleParent' || key === 'articleParent') {
+        return cashGetFactArticleParent(fact);
+      }
+
+      return fact[key];
+    }
+
+    function cashIsAdministrativeCfo(cfo) {
+      const normalized = String(cfo || '').toLowerCase();
+      const patterns = [
+        'ахо',
+        'финансов',
+        'hr',
+        'администрац',
+        'руковод',
+        'бухгалтер',
+        'кадры',
+        'маркетинг',
+        'офис',
+      ];
+
+      return patterns.some(function cashMatchAdminPattern(pattern) {
+        return normalized.indexOf(pattern) !== -1;
+      });
+    }
+
+    function cashIsEducationCfo(cfo) {
+      const normalized = String(cfo || '').toLowerCase();
+      const patterns = [
+        'ступень',
+        'класс',
+        'группа',
+        'гр ',
+        ' гр',
+      ];
+
+      return patterns.some(function cashMatchEducationPattern(pattern) {
+        return normalized.indexOf(pattern) !== -1;
+      });
+    }
+
+    function cashIsUnallocatedCfo(cfo) {
+      const normalized = String(cfo || '').toLowerCase();
+      return normalized === 'не распределено'
+        || normalized === 'без цфо'
+        || normalized.indexOf('нераспредел') !== -1;
+    }
+
+    function cashSetStatus(value, note) {
+      document.getElementById('cash-status-value').textContent = value;
+      document.getElementById('cash-status-note').textContent = note;
+    }
+
+    function cashSetCurrentDate() {
+      const element = document.getElementById('cash-current-date');
+      const formattedDate = new Intl.DateTimeFormat('ru-RU', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+      }).format(new Date());
+      element.textContent = 'Дата просмотра: ' + formattedDate;
+    }
+
+    function cashFormatCurrency(value) {
+      return new Intl.NumberFormat('ru-RU', {
+        style: 'currency',
+        currency: 'RUB',
+        maximumFractionDigits: 0,
+      }).format(Number(value || 0));
+    }
+
+    function cashFormatNumber(value) {
+      return new Intl.NumberFormat('ru-RU', {
+        maximumFractionDigits: 1,
+      }).format(Number(value || 0));
+    }
+
+    function cashFormatRatio(value) {
+      return new Intl.NumberFormat('ru-RU', {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1,
+      }).format(Number(value || 0));
+    }
+
+    function cashFormatPercent(value) {
+      return new Intl.NumberFormat('ru-RU', {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1,
+      }).format(Number(value || 0)) + '%';
+    }
+
+    function cashFormatCompactCurrency(value) {
+      const number = Number(value || 0);
+      const sign = number < 0 ? '-' : '';
+      const abs = Math.abs(number);
+
+      if (abs >= 1000000) {
+        return sign + cashFormatNumber(abs / 1000000) + ' млн ₽';
+      }
+
+      if (abs >= 1000) {
+        return sign + cashFormatNumber(abs / 1000) + ' тыс ₽';
+      }
+
+      return cashFormatCurrency(number);
+    }
+
+    function cashRound(value) {
+      return Math.round((Number(value || 0) + Number.EPSILON) * 100) / 100;
+    }
+
+    function cashEscape(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    cashInit();
+  </script>
+</section>
