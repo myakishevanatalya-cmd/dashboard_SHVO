@@ -363,18 +363,36 @@
     @media (max-width: 768px) {
       .profit-page { padding: 14px; }
       .profit-hero { grid-template-columns: 1fr; padding: 18px; }
+      .profit-actions { display: grid; grid-template-columns: 1fr; }
+      .profit-button { width: 100%; }
       .profit-filters { grid-template-columns: 1fr; }
       .profit-kpis { grid-template-columns: repeat(2, 1fr); }
+      .profit-product-summary { grid-template-columns: 1fr; }
+      .profit-product-card { min-height: 0; padding: 14px; }
+      .profit-bridge-grid { overflow-x: auto; }
+      .profit-bridge-row { min-width: 760px; }
+      .profit-combo { min-height: 280px; padding-inline: 4px; }
+      .profit-combo__plot { min-width: 620px; height: 230px; }
+      .profit-combo__x { min-width: 620px; }
+      .profit-matrix-wrap { max-height: 520px; }
       .profit-donut-grid { grid-template-columns: 1fr; }
       .profit-panel__head { display: grid; }
       .profit-bar { grid-template-columns: 1fr; gap: 5px; }
       .profit-bar__value { text-align: left; }
+      .profit-modal.is-visible { padding: 10px; }
+      .profit-modal__body { width: 100%; max-height: 92vh; padding: 14px; border-radius: 18px; }
     }
 
     @media (max-width: 480px) {
       .profit-kpis { grid-template-columns: 1fr; }
       .profit-title { font-size: 25px; }
       .profit-status { min-width: 0; }
+      .profit-page { padding: 10px; }
+      .profit-panel, .profit-filters, .profit-kpi { border-radius: 18px; }
+      .profit-kpi { min-height: 0; padding: 15px; }
+      .profit-kpi__value { font-size: 23px; }
+      .profit-combo__plot { min-width: 560px; }
+      .profit-combo__x { min-width: 560px; }
     }
   </style>
 
