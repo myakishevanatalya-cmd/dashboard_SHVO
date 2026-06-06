@@ -25,6 +25,7 @@ const PROFIT_HEADER_ALIASES = {
   cfo: ['цфо'],
   articleParent: ['статья ддс.родитель', 'статья доходов и расходов.родитель', 'статья дир.родитель', 'родитель', 'статья родитель'],
   article: ['статья ддс', 'статья доходов и расходов', 'статья доходов/расходов', 'статья', 'статья дир'],
+  topLevel: ['верхний уровень'],
   registrar: ['регистратор', 'документ'],
   amount: ['сумма', 'результат', 'оборот'],
 };
@@ -74,6 +75,136 @@ function profitGetDrilldown(payload) {
       }),
     });
   });
+}
+
+function profitCreateQualityReport(payload) {
+  return profitSafeExecute('profitCreateQualityReport', function () {
+    const facts = profitReadFacts();
+    const normalizedPayload = profitNormalizePayload(payload, facts);
+    const filteredFacts = profitFilterFacts(facts, normalizedPayload.filters);
+    const rows = profitBuildQualityReportRows(filteredFacts);
+    const sheetName = 'Контроль P&L';
+    const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = spreadsheet.getSheetByName(sheetName) || spreadsheet.insertSheet(sheetName);
+    const headers = [
+      'Риск',
+      'Дата',
+      'Направление',
+      'ЦФО',
+      'Статья ДДС.Родитель',
+      'Статья ДДС',
+      'Верхний уровень',
+      'Управленческий тип',
+      'Сумма',
+      'Регистратор',
+      'Что проверить',
+    ];
+    const values = [headers].concat(rows);
+
+    sheet.clear();
+    sheet.getRange(1, 1, values.length, headers.length).setValues(values);
+    sheet.getRange(1, 1, 1, headers.length)
+      .setBackground('#111827')
+      .setFontColor('#ffffff')
+      .setFontWeight('bold');
+    if (rows.length) {
+      sheet.getRange(2, 9, rows.length, 1).setNumberFormat('#,##0.00');
+    }
+    sheet.autoResizeColumns(1, headers.length);
+    sheet.setFrozenRows(1);
+
+    return profitCreateSuccess({
+      sheetName: sheetName,
+      rowsCount: rows.length,
+      generatedAt: profitFormatDateTime(new Date()),
+    });
+  });
+}
+
+function profitBuildQualityReportRows(facts) {
+  const rows = [];
+  facts.forEach(function profitCollectQualityRows(fact) {
+    const issues = profitGetFactQualityIssues(fact);
+    issues.forEach(function profitPushQualityIssue(issue) {
+      rows.push([
+        issue.risk,
+        fact.dateLabel || fact.date || '',
+        fact.direction,
+        fact.cfo,
+        fact.articleParent,
+        fact.article,
+        fact.topLevel,
+        fact.managementType,
+        fact.amount,
+        fact.registrar,
+        issue.action,
+      ]);
+    });
+  });
+  return rows;
+}
+
+function profitGetFactQualityIssues(fact) {
+  const issues = [];
+  const topLevel = profitNormalizeKey(fact.topLevel);
+  const parent = profitNormalizeKey(fact.articleParent);
+
+  if (!fact.timestamp) {
+    issues.push({
+      risk: 'Нет даты',
+      action: 'Проверить поле "Период" или дату внутри регистратора.',
+    });
+  }
+  if (fact.directionWasEmpty) {
+    issues.push({
+      risk: 'Нет направления',
+      action: 'Заполнить направление, чтобы P&L корректно считал филиалы и управленческие расходы.',
+    });
+  }
+  if (fact.cfoWasEmpty) {
+    issues.push({
+      risk: 'Нет ЦФО',
+      action: 'Заполнить ЦФО или подтвердить, что операция действительно не распределяется по группе/классу.',
+    });
+  }
+  if (fact.classificationWarning) {
+    issues.push({
+      risk: 'Новая статья вне справочника',
+      action: fact.classificationWarning + '. Добавить ее в маппинг P&L или подтвердить текущий тип.',
+    });
+  }
+  if (parent === 'выяснить' || topLevel === 'выяснить') {
+    issues.push({
+      risk: 'Статья "Выяснить"',
+      action: 'Разнести операцию по корректной статье доходов или расходов до управленческой отчетности.',
+    });
+  }
+  if (topLevel === 'выручка' && fact.managementType !== 'revenue' && !fact.isExcluded) {
+    issues.push({
+      risk: 'Верхний уровень не совпал с P&L-типом',
+      action: 'В 1С стоит "Выручка", но статья классифицирована не как доход. Проверить родительскую статью и маппинг.',
+    });
+  }
+  if ((topLevel === 'затраты расходы' || topLevel === 'затратырасходы') && fact.managementType === 'revenue') {
+    issues.push({
+      risk: 'Расход попал в доходную статью',
+      action: 'В 1С стоит "Затраты/расходы", но родительская статья классифицирована как доход. Проверить справочник.',
+    });
+  }
+  if (fact.isRevenue && fact.amount < 0) {
+    issues.push({
+      risk: 'Отрицательный доход',
+      action: 'Похоже на возврат или корректировку выручки. Убедиться, что знак и статья указаны верно.',
+    });
+  }
+  if ((fact.isDirectExpense || fact.isIndirectExpense || fact.isTax || fact.isInvestment) && fact.amount > 0) {
+    issues.push({
+      risk: 'Положительный расход',
+      action: 'Похоже на возврат расхода или корректировку. Проверить, что положительная сумма осознанно уменьшает расходы.',
+    });
+  }
+
+  return issues;
 }
 
 function profitDebugSheetStructure() {
@@ -132,11 +263,18 @@ function profitNormalizeFact(row, index, sourceRow) {
   const schoolMonthNumber = profitGetSchoolMonthNumber(monthNumber);
   const schoolYear = profitCleanText(profitGetCell(row, index.schoolYear)) || profitGetSchoolYear(year, monthNumber);
   const direction = profitNormalizeDirection(profitGetCell(row, index.direction));
-  const cfo = profitCleanText(profitGetCell(row, index.cfo)) || 'ЦФО не распределено';
+  const directionWasEmpty = !profitCleanText(profitGetCell(row, index.direction));
+  const cfoRaw = profitCleanText(profitGetCell(row, index.cfo));
+  const cfo = cfoRaw || 'ЦФО не распределено';
+  const cfoWasEmpty = !cfoRaw;
   const articleParent = profitCleanText(profitGetCell(row, index.articleParent)) || 'Не распределено';
   const article = profitCleanText(profitGetCell(row, index.article)) || articleParent;
   const amount = profitParseNumber(profitGetCell(row, index.amount));
+  const topLevel = profitCleanText(profitGetCell(row, index.topLevel));
   const managementType = profitClassifyArticle(articleParent, direction);
+  const classificationWarning = profitIsKnownArticleParent(articleParent)
+    ? ''
+    : 'Новая или неописанная статья P&L: ' + articleParent;
 
   return {
     sourceRow: sourceRow,
@@ -150,12 +288,16 @@ function profitNormalizeFact(row, index, sourceRow) {
     schoolMonthNumber: schoolMonthNumber || 0,
     schoolMonthLabel: profitMonthNumberToName(monthNumber),
     direction: direction,
+    directionWasEmpty: directionWasEmpty,
     cfo: cfo,
+    cfoWasEmpty: cfoWasEmpty,
     articleParent: articleParent,
     article: article,
+    topLevel: topLevel,
     registrar: registrar,
     amount: amount,
     managementType: managementType,
+    classificationWarning: classificationWarning,
     isRevenue: managementType === 'revenue',
     isDirectExpense: managementType === 'directExpense',
     isIndirectExpense: managementType === 'indirectExpense',
@@ -295,6 +437,22 @@ function profitClassifyArticle(articleParent, direction) {
 
   if (profitIncludesNormalized(indirectAny, article)) return 'indirectExpense';
   return 'indirectExpense';
+}
+
+function profitIsKnownArticleParent(articleParent) {
+  const article = profitNormalizeKey(articleParent);
+  const known = [
+    'основное образование', 'доп образование', 'лагерь', 'субсидия', 'прочие доходы',
+    'фот', 'расходы на персонал', 'материалы', 'расходы на образовательные мероприятия',
+    'мероприятия', 'оборудование', 'аренда', 'коммунальные расходы', 'охрана',
+    'маркетинг', 'консультационные услуги', 'по лицензии', 'санитарная обработка',
+    'то ремонт', 'транспортные расходы', 'комиссии банков', 'представительские расходы',
+    'прочие расходы', 'выяснить', 'налоги и взносы', 'внеоперационные расходы',
+    'дополнительные доходы расходы проекты', 'строительство звд', 'дивиденды',
+    'кредиты', 'кредиты сотрудникам', 'перемещение денег', 'движение денег внутри шво'
+  ];
+
+  return known.indexOf(article) !== -1;
 }
 
 function profitIncludesNormalized(dictionary, value) {
